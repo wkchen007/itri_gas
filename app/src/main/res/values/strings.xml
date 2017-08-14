@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">空氣品質偵測</string>
+    <string name="ble_not_supported">BLE not supported on this device.</string>
+    <string name="bt_not_supported">Bluetooth not supported on this device.</string>
+    <string name="bt_not_enabled">Bluetooth is not enabled, turn it on.</string>
+    <string name="action_scan">SCAN</string>
+    <string name="action_stop">STOP</string>
+    <string name="action_settings">切換工程</string>
+    <string name="temperature_unit">溫度(°C)</string>
+    <string name="humidity_unit">濕度(%)</string>
+    <string name="normal">正常</string>
+    <string name="warn">偏高</string>
+    <string name="careful">過量</string>
+    <string name="danger">危險</string>
+</resources>
