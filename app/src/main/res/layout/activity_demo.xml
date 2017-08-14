@@ -20,7 +20,13 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_demo" />
+    <fragment
+        android:id="@+id/fragDemo"
+        android:name="com.itripatch.itri_gas.DemoFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="120dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
     <!--<android.support.design.widget.FloatingActionButton-->
         <!--android:id="@+id/fab"-->

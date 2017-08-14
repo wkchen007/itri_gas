@@ -6,6 +6,7 @@ import android.bluetooth.BluetoothManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -40,10 +41,12 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
     private Boolean emStart = false;
     private MediaPlayer mp;
     private Toolbar toolbar;
+    private Fragment currentFragment;
     private RelativeLayout relativeLayout;
     private ImageView imageView;
     private TextView airStatus;
-
+    private TextView device_name;
+    private TextView device_address;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,11 +56,14 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
         toolbar.setTitle("");
         toolbar.setLogo(R.drawable.itri);
         setSupportActionBar(toolbar);
+        currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragDemo);
         init();
         alarmPopupView = getLayoutInflater().inflate(R.layout.alarm_button, null);
-        relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayout);
-        imageView = (ImageView) findViewById(R.id.imageView);
-        airStatus = (TextView) findViewById(R.id.airStatus);
+        device_name = (TextView) currentFragment.getView().findViewById(R.id.device_name);
+        device_address = (TextView) currentFragment.getView().findViewById(R.id.device_address);
+        relativeLayout = (RelativeLayout) currentFragment.getView().findViewById(R.id.relativeLayout);
+        imageView = (ImageView) currentFragment.getView().findViewById(R.id.imageView);
+        airStatus = (TextView) currentFragment.getView().findViewById(R.id.airStatus);
     }
 
     @Override
@@ -125,7 +131,9 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
     @Override
     public void onLeScan(BluetoothDevice newDeivce, int newRssi, byte[] newScanRecord) {
         if (newDeivce.getName() != null) {
-            if (newDeivce.getName().contains("itri gas sensor") && newDeivce.getAddress().contains("72:04")) {
+            if (newDeivce.getName().contains("itri gas sensor")) {
+                device_name.setText(newDeivce.getName());
+                device_address.setText(newDeivce.getAddress());
                 updateUI(newDeivce, newRssi, newScanRecord);
             }
         }
@@ -146,29 +154,31 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
                 @Override
                 public void run() {
 //                    mDeviceAdapter.notifyDataSetChanged();
-                    ((TextView) findViewById(R.id.temperature)).setText(temp[0]);
-                    ((TextView) findViewById(R.id.humidity)).setText(hum[0]);
+                    ((TextView) currentFragment.getView().findViewById(R.id.temperature)).setText(temp[0]);
+                    ((TextView) currentFragment.getView().findViewById(R.id.humidity)).setText(hum[0]);
+
                     if (Integer.parseInt(gas[0]) < 2193) {
-                        airStatus.setText(R.string.normal);
                         toolbar.setBackgroundColor(getResources().getColor(R.color.normal));
+                        airStatus.setText(R.string.normal);
                         relativeLayout.setBackgroundColor(getResources().getColor(R.color.normal));
                         imageView.setBackground(getResources().getDrawable(R.drawable.normal));
                     } else if (Integer.parseInt(gas[0]) >= 2193 && Integer.parseInt(gas[0]) < 2479) {
-                        airStatus.setText(R.string.warn);
                         toolbar.setBackgroundColor(getResources().getColor(R.color.warn));
+                        airStatus.setText(R.string.warn);
                         relativeLayout.setBackgroundColor(getResources().getColor(R.color.warn));
                         imageView.setBackground(getResources().getDrawable(R.drawable.warn));
                     } else if (Integer.parseInt(gas[0]) >= 2479 && Integer.parseInt(gas[0]) < 2609) {
-                        airStatus.setText(R.string.careful);
                         toolbar.setBackgroundColor(getResources().getColor(R.color.careful));
+                        airStatus.setText(R.string.careful);
                         relativeLayout.setBackgroundColor(getResources().getColor(R.color.careful));
                         imageView.setBackground(getResources().getDrawable(R.drawable.careful));
                     } else {
-                        airStatus.setText(R.string.danger);
                         toolbar.setBackgroundColor(getResources().getColor(R.color.danger));
+                        airStatus.setText(R.string.danger);
                         relativeLayout.setBackgroundColor(getResources().getColor(R.color.danger));
                         imageView.setBackground(getResources().getDrawable(R.drawable.danger));
                     }
+
                     if (em.contains("true")) {
                         if (!emStart) {
                             alarmButtonClick();
