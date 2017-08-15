@@ -6,7 +6,7 @@ import android.bluetooth.BluetoothManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -17,11 +17,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AnimationUtils;
-import android.widget.AdapterView;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,12 +37,8 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
     private Boolean emStart = false;
     private MediaPlayer mp;
     private Toolbar toolbar;
-    private Fragment currentFragment;
-    private RelativeLayout relativeLayout;
-    private ImageView imageView;
-    private TextView airStatus;
-    private TextView device_name;
-    private TextView device_address;
+    private DemoFragment demo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,20 +48,18 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
         toolbar.setTitle("");
         toolbar.setLogo(R.drawable.itri);
         setSupportActionBar(toolbar);
-        currentFragment = getSupportFragmentManager().findFragmentById(R.id.fragDemo);
+        demo = new DemoFragment();
+        FragmentTransaction fragTran =
+                getSupportFragmentManager().beginTransaction();
+        fragTran.replace(R.id.gasFrame, demo);
+        fragTran.commit();
         init();
         alarmPopupView = getLayoutInflater().inflate(R.layout.alarm_button, null);
-        device_name = (TextView) currentFragment.getView().findViewById(R.id.device_name);
-        device_address = (TextView) currentFragment.getView().findViewById(R.id.device_address);
-        relativeLayout = (RelativeLayout) currentFragment.getView().findViewById(R.id.relativeLayout);
-        imageView = (ImageView) currentFragment.getView().findViewById(R.id.imageView);
-        airStatus = (TextView) currentFragment.getView().findViewById(R.id.airStatus);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
         if ((mBTAdapter != null) && (!mBTAdapter.isEnabled())) {
             Toast.makeText(this, R.string.bt_not_enabled, Toast.LENGTH_SHORT).show();
             invalidateOptionsMenu();
@@ -132,8 +122,6 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
     public void onLeScan(BluetoothDevice newDeivce, int newRssi, byte[] newScanRecord) {
         if (newDeivce.getName() != null) {
             if (newDeivce.getName().contains("itri gas sensor")) {
-                device_name.setText(newDeivce.getName());
-                device_address.setText(newDeivce.getAddress());
                 updateUI(newDeivce, newRssi, newScanRecord);
             }
         }
@@ -154,31 +142,7 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
                 @Override
                 public void run() {
 //                    mDeviceAdapter.notifyDataSetChanged();
-                    ((TextView) currentFragment.getView().findViewById(R.id.temperature)).setText(temp[0]);
-                    ((TextView) currentFragment.getView().findViewById(R.id.humidity)).setText(hum[0]);
-
-                    if (Integer.parseInt(gas[0]) < 2193) {
-                        toolbar.setBackgroundColor(getResources().getColor(R.color.normal));
-                        airStatus.setText(R.string.normal);
-                        relativeLayout.setBackgroundColor(getResources().getColor(R.color.normal));
-                        imageView.setBackground(getResources().getDrawable(R.drawable.normal));
-                    } else if (Integer.parseInt(gas[0]) >= 2193 && Integer.parseInt(gas[0]) < 2479) {
-                        toolbar.setBackgroundColor(getResources().getColor(R.color.warn));
-                        airStatus.setText(R.string.warn);
-                        relativeLayout.setBackgroundColor(getResources().getColor(R.color.warn));
-                        imageView.setBackground(getResources().getDrawable(R.drawable.warn));
-                    } else if (Integer.parseInt(gas[0]) >= 2479 && Integer.parseInt(gas[0]) < 2609) {
-                        toolbar.setBackgroundColor(getResources().getColor(R.color.careful));
-                        airStatus.setText(R.string.careful);
-                        relativeLayout.setBackgroundColor(getResources().getColor(R.color.careful));
-                        imageView.setBackground(getResources().getDrawable(R.drawable.careful));
-                    } else {
-                        toolbar.setBackgroundColor(getResources().getColor(R.color.danger));
-                        airStatus.setText(R.string.danger);
-                        relativeLayout.setBackgroundColor(getResources().getColor(R.color.danger));
-                        imageView.setBackground(getResources().getDrawable(R.drawable.danger));
-                    }
-
+                    demo.update(newDeivce.getName(), newDeivce.getAddress(), Integer.parseInt(gas[0]), Double.parseDouble(temp[0]), Double.parseDouble(hum[0]));
                     if (em.contains("true")) {
                         if (!emStart) {
                             alarmButtonClick();
@@ -288,18 +252,11 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
             final View curView = getLayoutInflater().inflate(R.layout.activity_demo, null);
             TextView alarmMsg = (TextView) alarmPopupView.findViewById(R.id.alarm_msg);
             alarmMsg.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.flash_leave_now));  //Start Animation
-
-//        mPopupWindow = new PopupWindow(popupView, AbsListView.LayoutParams.MATCH_PARENT, AbsListView.LayoutParams.WRAP_CONTENT, true);
             alarmPopupWindow = new PopupWindow(alarmPopupView, 820, 300, true);
             alarmPopupWindow.setTouchable(false);
             alarmPopupWindow.setOutsideTouchable(false);
-
-            //這一行會造成popWindow後. 按任意一個地方都會alarmPopupWindow.setOnDismissListener
-//            alarmPopupWindow.setBackgroundDrawable(new BitmapDrawable(getResources(), (Bitmap) null));
-
             alarmPopupWindow.setAnimationStyle(R.style.slow_Display_Window);
             alarmPopupWindow.showAtLocation(curView, Gravity.CENTER, 650, -80);
-
             //Play Sound
             setVolumeControlStream(AudioManager.STREAM_MUSIC);
             mp = MediaPlayer.create(DemoActivity.this, R.raw.police3);
@@ -313,30 +270,22 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
             }
             alarmPopupWindowShow = true;
         }
-
-
         alarmPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-
             @Override
             public void onDismiss() {
-
                 alarmPopupWindowShow = false;
                 alarmPopupWindow.dismiss();
-                // end may TODO anything else
                 //讓螢幕背景回復到原先的亮度
                 WindowManager.LayoutParams params = getWindow().getAttributes();
                 params.alpha = 1.0f;
                 getWindow().setAttributes(params);
             }
-        });//end of  mPopupWindow.setOnDismissListener
-
+        });
     }
 
     private void alarmButtonCancel() {
-
         if (alarmPopupWindowShow) {
             alarmPopupWindow.dismiss();
-            // end may TODO anything else
             //讓螢幕背景回復到原先的亮度
             WindowManager.LayoutParams params = getWindow().getAttributes();
             params.alpha = 1.0f;
