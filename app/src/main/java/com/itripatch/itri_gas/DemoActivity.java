@@ -6,7 +6,10 @@ import android.bluetooth.BluetoothManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -37,7 +40,9 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
     private Boolean emStart = false;
     private MediaPlayer mp;
     private Toolbar toolbar;
-    private DemoFragment demo;
+    private DemoFragment[] demo = new DemoFragment[5];
+    private SectionsPagerAdapter mSectionsPagerAdapter;
+    private ViewPager mViewPager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +53,12 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
         toolbar.setTitle("");
         toolbar.setLogo(R.drawable.itri);
         setSupportActionBar(toolbar);
-        demo = new DemoFragment();
-        FragmentTransaction fragTran =
-                getSupportFragmentManager().beginTransaction();
-        fragTran.replace(R.id.gasFrame, demo);
-        fragTran.commit();
         init();
+        mSectionsPagerAdapter = new SectionsPagerAdapter(
+                getSupportFragmentManager());
+        // 設定 ViewPager 和 Pager Adapter.
+        mViewPager = (ViewPager) findViewById(R.id.viewPager);
+        mViewPager.setAdapter(mSectionsPagerAdapter);
         alarmPopupView = getLayoutInflater().inflate(R.layout.alarm_button, null);
     }
 
@@ -119,10 +124,20 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
     }
 
     @Override
-    public void onLeScan(BluetoothDevice newDeivce, int newRssi, byte[] newScanRecord) {
+    public void onLeScan(final BluetoothDevice newDeivce, int newRssi, byte[] newScanRecord) {
         if (newDeivce.getName() != null) {
-            if (newDeivce.getName().contains("itri gas sensor")) {
-                updateUI(newDeivce, newRssi, newScanRecord);
+            if (newDeivce.getName().contains("itri gas sensor") && mDeviceAdapter.getSize() < 5) {
+                if (!mDeviceAdapter.check(newDeivce.getAddress())) {
+                    mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            demo[mDeviceAdapter.getSize() - 1] = DemoFragment.newInstance(newDeivce.getName(), newDeivce.getAddress());
+                            mSectionsPagerAdapter.notifyDataSetChanged();
+                        }
+                    });
+                } else
+                    updateUI(newDeivce, newRssi, newScanRecord);
             }
         }
     }
@@ -132,7 +147,7 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
         String summary = mDeviceAdapter.update(newDeivce, newRssi, newScanRecord);
         if (summary != null) {
             String data[] = summary.split(",");
-            final String total = data[0];
+            final String battery[] = data[0].split(";");
             final String em = data[1];
             final String gas[] = data[2].split(";");
             final String temp[] = data[3].split(";");
@@ -141,8 +156,17 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-//                    mDeviceAdapter.notifyDataSetChanged();
-                    demo.update(newDeivce.getName(), newDeivce.getAddress(), Integer.parseInt(gas[0]), Double.parseDouble(temp[0]), Double.parseDouble(hum[0]));
+                    String demoEm[] = em.split(";");
+                    for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
+                        if (demo[i].getAcCreated()) {
+                            if (demoEm[i].equals("true"))
+                                demo[i].setEm();
+                            else
+                                demo[i].setUnEm();
+                            demo[i].update(Integer.parseInt(battery[i]), Integer.parseInt(gas[i]), Double.parseDouble(temp[i]), Double.parseDouble(hum[i]));
+                            mSectionsPagerAdapter.notifyDataSetChanged();
+                        }
+                    }
                     if (em.contains("true")) {
                         if (!emStart) {
                             alarmButtonClick();
@@ -160,10 +184,6 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
                 int g = Integer.parseInt(gas[i]);
                 float draw = (float) (-5 + (g - 0) / (4000.0 - 0) * (5 + 5));
                 gasLine[i] = draw + getSmooth(draw);
-            }
-            switch (mode) {
-                case "demo":
-                    break;
             }
         }
     }
@@ -190,7 +210,6 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
             finish();
             return;
         }
-
         // BT check
         BluetoothManager manager = BleUtil.getManager(this);
         if (manager != null) {
@@ -201,28 +220,8 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
             finish();
             return;
         }
-
-        // init listview
-//        ListView deviceListView = (ListView) findViewById(R.id.list);
-        mDeviceAdapter = new DeviceAdapter(this, R.layout.listitem_device,
-                new ArrayList<ScannedDevice>());
-//        deviceListView.setAdapter(mDeviceAdapter);
-//        deviceListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-//                mDeviceAdapter.getDevice(i).setIgnore();
-//                if (mDeviceAdapter.getDevice(i).getIgnore())
-//                    Toast.makeText(getApplicationContext(), "關閉警報", Toast.LENGTH_SHORT).show();
-//                else
-//                    Toast.makeText(getApplicationContext(), "開啟警報", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-
-        switch (mode) {
-            case "demo":
-                break;
-        }
-        stopScan();
+        mDeviceAdapter = new DeviceAdapter(this, new ArrayList<ScannedDevice>());
+        startScan();
     }
 
     private void startScan() {
@@ -298,6 +297,24 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
                     break;
             }
             alarmPopupWindowShow = false;
+        }
+    }
+
+    private class SectionsPagerAdapter extends FragmentPagerAdapter {
+
+        public SectionsPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            // 根據目前tab標籤頁的位置，傳回對應的fragment物件
+            return demo[position];
+        }
+
+        @Override
+        public int getCount() {
+            return mDeviceAdapter.getSize();
         }
     }
 }

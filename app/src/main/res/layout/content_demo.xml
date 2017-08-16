@@ -7,6 +7,7 @@
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="120dp"
         android:background="@color/normal">
 
         <TextView
@@ -92,11 +93,6 @@
             android:textColor="@android:color/white"
             android:textSize="30dp" />
 
-        <!--<ListView-->
-        <!--android:id="@+id/list"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content" />-->
-
         <TextView
             android:id="@+id/temperature"
             android:layout_width="wrap_content"
@@ -117,4 +113,5 @@
             android:textColor="@android:color/white"
             android:textSize="40dp" />
     </RelativeLayout>
+    <include layout="@layout/tab_layout" />
 </RelativeLayout>

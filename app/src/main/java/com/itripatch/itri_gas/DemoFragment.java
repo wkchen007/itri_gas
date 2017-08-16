@@ -3,7 +3,6 @@ package com.itripatch.itri_gas;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,38 +16,26 @@ import android.widget.TextView;
  * create an instance of this fragment.
  */
 public class DemoFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+    private static final String ARG_NAME = "ARG_NAME";
+    private static final String ARG_ADDRESS = "ARG_ADDRESS";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private String mName, mAddress;
 
-    private Toolbar toolbar;
+    private boolean acCreated = false;
     private RelativeLayout relativeLayout;
     private ImageView imageView;
-    private TextView device_name, device_address, temperature, humidity, airStatus;
+    private TextView device_name, device_address, temperature, humidity, airStatus, battery;
 
     public DemoFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment DemoFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static DemoFragment newInstance(String param1, String param2) {
+    public static DemoFragment newInstance(String name, String address) {
         DemoFragment fragment = new DemoFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
+        args.putString(ARG_NAME, name);
+        args.putString(ARG_ADDRESS, address);
         fragment.setArguments(args);
         return fragment;
     }
@@ -57,8 +44,8 @@ public class DemoFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            mName = getArguments().getString(ARG_NAME);
+            mAddress = getArguments().getString(ARG_ADDRESS);
         }
     }
 
@@ -71,39 +58,51 @@ public class DemoFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         relativeLayout = (RelativeLayout) getView().findViewById(R.id.relativeLayout);
         imageView = (ImageView) getView().findViewById(R.id.imageView);
-        device_name = (TextView) getView().findViewById(R.id.device_name);
-        device_address = (TextView) getView().findViewById(R.id.device_address);
         temperature = (TextView) getView().findViewById(R.id.temperature);
         humidity = (TextView) getView().findViewById(R.id.humidity);
         airStatus = (TextView) getView().findViewById(R.id.airStatus);
+        device_name = (TextView) getView().findViewById(R.id.device_name);
+        device_address = (TextView) getView().findViewById(R.id.device_address);
+        battery = (TextView) getView().findViewById(R.id.battery);
+        device_name.setText(mName);
+        device_address.setText(mAddress);
+        acCreated = true;
     }
 
-    public void update(String name, String address, int gas, double temp, double hum) {
-        device_name.setText(name);
-        device_address.setText(address);
+    public boolean getAcCreated() {
+        return acCreated;
+    }
+
+    public void setEm() {
+        device_name.setTextColor(getResources().getColor(R.color.danger));
+        device_address.setTextColor(getResources().getColor(R.color.danger));
+    }
+
+    public void setUnEm() {
+        device_name.setTextColor(getResources().getColor(android.R.color.white));
+        device_address.setTextColor(getResources().getColor(android.R.color.white));
+    }
+
+    public void update(int bat, int gas, double temp, double hum) {
+        battery.setText(bat + " %");
         temperature.setText(temp + "");
         humidity.setText(hum + "");
 
-        if (gas < 2193) {
-            toolbar.setBackgroundColor(getResources().getColor(R.color.normal));
+        if (gas < 2000) {
             airStatus.setText(R.string.normal);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.normal));
             imageView.setBackground(getResources().getDrawable(R.drawable.normal));
-        } else if (gas >= 2193 && gas < 2479) {
-            toolbar.setBackgroundColor(getResources().getColor(R.color.warn));
+        } else if (gas >= 2000 && gas < 3000) {
             airStatus.setText(R.string.warn);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.warn));
             imageView.setBackground(getResources().getDrawable(R.drawable.warn));
-        } else if (gas >= 2479 && gas < 2609) {
-            toolbar.setBackgroundColor(getResources().getColor(R.color.careful));
+        } else if (gas >= 3000 && gas < 3500) {
             airStatus.setText(R.string.careful);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.careful));
             imageView.setBackground(getResources().getDrawable(R.drawable.careful));
         } else {
-            toolbar.setBackgroundColor(getResources().getColor(R.color.danger));
             airStatus.setText(R.string.danger);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.danger));
             imageView.setBackground(getResources().getDrawable(R.drawable.danger));

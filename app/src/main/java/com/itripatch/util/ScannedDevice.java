@@ -18,6 +18,7 @@ package com.itripatch.util;
 
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
+import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
 
@@ -135,7 +136,7 @@ public class ScannedDevice {
         if (!ignore) {
             String hexString = getScanRecordHexString();
             try {
-                if (Integer.parseInt(hexString.substring(12, 14)) == 1)
+                if (Integer.parseInt(hexString.substring(34, 36)) == 1)
                     mEmergencyBit = true;
                 else
                     mEmergencyBit = false;

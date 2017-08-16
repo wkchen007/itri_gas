@@ -20,12 +20,13 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <FrameLayout
-        android:id="@+id/gasFrame"
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="120dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"></FrameLayout>
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    </android.support.v4.view.ViewPager>
 
     <!--<android.support.design.widget.FloatingActionButton-->
     <!--android:id="@+id/fab"-->
@@ -34,7 +35,5 @@
     <!--android:layout_gravity="bottom|end"-->
     <!--android:layout_margin="@dimen/fab_margin"-->
     <!--app:srcCompat="@android:drawable/ic_dialog_email" />-->
-
-    <include layout="@layout/tab_layout" />
 
 </android.support.design.widget.CoordinatorLayout>
