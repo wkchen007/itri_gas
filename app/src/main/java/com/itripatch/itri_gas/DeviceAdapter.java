@@ -53,7 +53,7 @@ public class DeviceAdapter {
                 device.setRssi(rssi);
                 device.setLastUpdatedMs(now);
                 device.setScanRecord(scanRecord);
-                device.setEmergencyBit();
+                device.setGasAlarm();
                 device.setGas();
                 device.setTemperature();
                 device.setHumidity();
@@ -68,7 +68,7 @@ public class DeviceAdapter {
         String hum = "";
         for (ScannedDevice device : mList) {
             battery += device.getPower() + ";";
-            em += device.getEmergencyBit() + ";";
+            em += device.getGasAlarm() + ";";
             gas += device.getGas() + ";";
             temp += device.getTemperature() + ";";
             hum += device.getHumidity() + ";";

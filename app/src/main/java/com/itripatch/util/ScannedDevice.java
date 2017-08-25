@@ -60,6 +60,10 @@ public class ScannedDevice {
      */
     private boolean mEmergencyBit;
     /**
+     * gas alarm
+     */
+    private boolean mGasAlarm;
+    /**
      * gas
      */
     private int mGas;
@@ -71,6 +75,7 @@ public class ScannedDevice {
     private double mTemperature;
     private double mHumidity;
     private int mPower;
+
     public ScannedDevice(BluetoothDevice device, int rssi, byte[] scanRecord, long now) {
         if (device == null) {
             throw new IllegalArgumentException("BluetoothDevice is null");
@@ -85,8 +90,9 @@ public class ScannedDevice {
         mRssi = rssi;
         mScanRecord = scanRecord;
         setPower();
-        setEmergencyBit();
-        mGasMax = 0;mGasMin = 4095;
+        setGasAlarm();
+        mGasMax = 0;
+        mGasMin = 4095;
         mGasRange = mGasMax - mGasMin;
         setGas();
         setTemperature();
@@ -124,6 +130,10 @@ public class ScannedDevice {
         return mEmergencyBit;
     }
 
+    public boolean getGasAlarm() {
+        return mGasAlarm;
+    }
+
     public void setIgnore() {
         ignore = !ignore;
     }
@@ -132,19 +142,31 @@ public class ScannedDevice {
         return ignore;
     }
 
-    public void setEmergencyBit() {
+    public void setGasAlarm() {
         if (!ignore) {
             String hexString = getScanRecordHexString();
             try {
-                if (Integer.parseInt(hexString.substring(34, 36)) == 1)
-                    mEmergencyBit = true;
+                if (Integer.parseInt(hexString.substring(12, 14)) == 1)
+                    mGasAlarm = true;
                 else
-                    mEmergencyBit = false;
+                    mGasAlarm = false;
             } catch (NumberFormatException e) {
-                mEmergencyBit = false;
+                mGasAlarm = false;
             }
         } else
+            mGasAlarm = false;
+    }
+
+    public void setEmergencyBit() {
+        String hexString = getScanRecordHexString();
+        try {
+            if (Integer.parseInt(hexString.substring(34, 36)) == 1)
+                mEmergencyBit = true;
+            else
+                mEmergencyBit = false;
+        } catch (NumberFormatException e) {
             mEmergencyBit = false;
+        }
     }
 
     public void setLastUpdatedMs(long lastUpdatedMs) {
@@ -176,13 +198,21 @@ public class ScannedDevice {
         mDisplayName = displayName;
     }
 
-    public int getGas() { return mGas; }
+    public int getGas() {
+        return mGas;
+    }
 
-    public int getGasMax() { return mGasMax; }
+    public int getGasMax() {
+        return mGasMax;
+    }
 
-    public int getGasMin() { return mGasMin; }
+    public int getGasMin() {
+        return mGasMin;
+    }
 
-    public int getGasRange() { return mGasRange; }
+    public int getGasRange() {
+        return mGasRange;
+    }
 
     public void setGas() {
         String hexString = getScanRecordHexString();
@@ -197,24 +227,37 @@ public class ScannedDevice {
             mGasMin = mGas;
         mGasRange = mGasMax - mGasMin;
     }
-    public double getTemperature() { return mTemperature; }
+
+    public double getTemperature() {
+        return mTemperature;
+    }
+
     public void setTemperature() {
         String hexString = getScanRecordHexString();
         double temperature = Integer.parseInt(hexString.substring(18, 26), 16) / 100.0;
         mTemperature = Math.floor(temperature * 100) / 100.0;
     }
-    public double getHumidity() { return mHumidity; }
+
+    public double getHumidity() {
+        return mHumidity;
+    }
+
     public void setHumidity() {
         String hexString = getScanRecordHexString();
         double humidity = Integer.parseInt(hexString.substring(26, 34), 16) / 1024.0;
         mHumidity = Math.floor(humidity * 100) / 100.0;
     }
-    public int getPower() { return mPower; }
+
+    public int getPower() {
+        return mPower;
+    }
+
     public void setPower() {
         String hexString = getScanRecordHexString();
         int power = (short) Integer.parseInt(hexString.substring(10, 12), 16);
         mPower = power;
     }
+
     public String toCsv() {
         StringBuilder sb = new StringBuilder();
         // DisplayName,MAC Addr,RSSI,Last Updated,iBeacon flag,Proximity UUID,major,minor,TxPower

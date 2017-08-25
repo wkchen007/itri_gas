@@ -148,7 +148,7 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
         if (summary != null) {
             String data[] = summary.split(",");
             final String battery[] = data[0].split(";");
-            final String em = data[1];
+            final String gasEm = data[1];
             final String gas[] = data[2].split(";");
             final String temp[] = data[3].split(";");
             final String hum[] = data[4].split(";");
@@ -156,10 +156,10 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    String demoEm[] = em.split(";");
+                    String demoGasEm[] = gasEm.split(";");
                     for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
                         if (demo[i].getAcCreated()) {
-                            if (demoEm[i].equals("true"))
+                            if (demoGasEm[i].equals("true"))
                                 demo[i].setEm();
                             else
                                 demo[i].setUnEm();
@@ -167,7 +167,7 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
                             mSectionsPagerAdapter.notifyDataSetChanged();
                         }
                     }
-                    if (em.contains("true")) {
+                    if (gasEm.contains("true")) {
                         if (!emStart) {
                             alarmButtonClick();
                             emStart = true;
