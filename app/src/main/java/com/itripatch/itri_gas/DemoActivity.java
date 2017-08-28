@@ -3,6 +3,7 @@ package com.itripatch.itri_gas;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -12,7 +13,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -120,7 +120,14 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
     }
 
     public void tabWork(View v) {
-        Toast.makeText(getApplicationContext(), "tabWork", Toast.LENGTH_SHORT).show();
+        stopScan();
+        Intent i = new Intent(this, WorkActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("address",(String) v.getTag());
+        i.putExtras(bundle);
+        startActivity(i);
+        finish();
+        overridePendingTransition(0,0);
     }
 
     @Override
@@ -152,7 +159,6 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
             final String gas[] = data[2].split(";");
             final String temp[] = data[3].split(";");
             final String hum[] = data[4].split(";");
-            float gasLine[] = {-5, -5, -5, -5, -5, -5, -5, -5, -5};
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -180,27 +186,7 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
                     }
                 }
             });
-            for (int i = 0; i < gas.length; i++) {
-                int g = Integer.parseInt(gas[i]);
-                float draw = (float) (-5 + (g - 0) / (4000.0 - 0) * (5 + 5));
-                gasLine[i] = draw + getSmooth(draw);
-            }
         }
-    }
-
-    public float getSmooth(float value) {
-        float smooth = -0.2f;
-        if (value >= -5 && value < -3)
-            smooth = -0.2f;
-        else if (value >= -3 && value < 0)
-            smooth = -0.1f;
-        else if (value >= 0 && value < 3)
-            smooth = 0.1f;
-        else if (value >= 3 && value < 5)
-            smooth = 0.2f;
-        else if (value >= 5)
-            smooth = 0.3f;
-        return smooth;
     }
 
     private void init() {

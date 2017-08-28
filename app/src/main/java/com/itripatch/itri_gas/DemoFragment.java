@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -26,7 +27,7 @@ public class DemoFragment extends Fragment {
     private RelativeLayout relativeLayout;
     private ImageView imageView;
     private TextView device_name, device_address, temperature, humidity, airStatus, battery;
-
+    private LinearLayout goWork;
     public DemoFragment() {
         // Required empty public constructor
     }
@@ -66,8 +67,11 @@ public class DemoFragment extends Fragment {
         device_name = (TextView) getView().findViewById(R.id.device_name);
         device_address = (TextView) getView().findViewById(R.id.device_address);
         battery = (TextView) getView().findViewById(R.id.battery);
+        goWork = (LinearLayout) getView().findViewById(R.id.goWork);
+
         device_name.setText(mName);
         device_address.setText(mAddress);
+        goWork.setTag(mAddress);
         acCreated = true;
     }
 
