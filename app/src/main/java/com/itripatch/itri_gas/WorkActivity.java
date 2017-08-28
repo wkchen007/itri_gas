@@ -6,10 +6,12 @@ import android.bluetooth.BluetoothManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.itripatch.util.BleUtil;
@@ -24,7 +26,8 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
     private Toolbar toolbar;
     private FrameLayout waveformLayout;
     private WaveformView waveformView = null;
-    public static boolean[] isLine = {false, false, false, false, false, false, false, false, false};
+    private String mAddress = null;
+    public static boolean[] isLine = {true, false, false, false, false, false, false, false, false};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +43,7 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
         waveformView = new WaveformView(this, null);
         waveformLayout.addView(waveformView);
         Bundle bundle = getIntent().getExtras();
-        Toast.makeText(this, bundle.getString("address"), Toast.LENGTH_SHORT).show();
+        mAddress = bundle.getString("address");
     }
 
     @Override
@@ -98,8 +101,8 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
     @Override
     public void onLeScan(final BluetoothDevice newDeivce, int newRssi, byte[] newScanRecord) {
         if (newDeivce.getName() != null) {
-            if (newDeivce.getName().contains("itri gas sensor") && mDeviceAdapter.getSize() < 5) {
-                if (!mDeviceAdapter.check(newDeivce.getAddress())) {
+            if (newDeivce.getAddress().contains(mAddress)) {
+                if (!mDeviceAdapter.check(mAddress)) {
                     mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
                 } else
                     updateUI(newDeivce, newRssi, newScanRecord);
@@ -126,6 +129,7 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    ((TextView) findViewById(R.id.sensitivity)).setText("SENSITIVITY " + gas[0]);
                     try {
                         waveformView.drawACC(gasLine[0], gasLine[1], gasLine[2], gasLine[3], gasLine[4], gasLine[5], gasLine[6], gasLine[7], gasLine[8], isLine);
                     } catch (InterruptedException e) {
@@ -142,7 +146,9 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
             smooth = -0.2f;
         else if (value >= -3 && value < 0)
             smooth = -0.1f;
-        else if (value >= 0 && value < 3)
+        else if (value >= 0 && value < 1)
+            smooth = 0.0f;
+        else if (value >= 1 && value < 3)
             smooth = 0.1f;
         else if (value >= 3 && value < 5)
             smooth = 0.2f;

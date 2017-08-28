@@ -42,13 +42,14 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/normal"
+                android:text="@string/NA"
                 android:textSize="100dp" />
 
             <TextView
+                android:id="@+id/sensitivity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SENSITIVITY 2923"
+                android:text="SENSITIVITY N/A"
                 android:textSize="30dp" />
         </LinearLayout>
 
@@ -60,77 +61,77 @@
             <TextView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="65dp"
+                android:layout_marginTop="38dp"
                 android:gravity="right"
                 android:text="4000" />
 
             <TextView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="95dp"
+                android:layout_marginTop="68dp"
                 android:gravity="right"
                 android:text="3600" />
 
             <TextView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="130dp"
+                android:layout_marginTop="101dp"
                 android:gravity="right"
                 android:text="3200" />
 
             <TextView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="160dp"
+                android:layout_marginTop="133dp"
                 android:gravity="right"
                 android:text="2800" />
 
             <TextView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="190dp"
+                android:layout_marginTop="163dp"
                 android:gravity="right"
                 android:text="2400" />
 
             <TextView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="225dp"
+                android:layout_marginTop="195dp"
                 android:gravity="right"
                 android:text="2000" />
 
             <TextView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="255dp"
+                android:layout_marginTop="227dp"
                 android:gravity="right"
                 android:text="1600" />
 
             <TextView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="290dp"
+                android:layout_marginTop="260dp"
                 android:gravity="right"
                 android:text="1200" />
 
             <TextView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="320dp"
+                android:layout_marginTop="290dp"
                 android:gravity="right"
                 android:text="800" />
 
             <TextView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="350dp"
+                android:layout_marginTop="320dp"
                 android:gravity="right"
                 android:text="400" />
 
             <TextView
                 android:layout_width="40dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="380dp"
+                android:layout_marginTop="350dp"
                 android:gravity="right"
                 android:text="0" />
 
