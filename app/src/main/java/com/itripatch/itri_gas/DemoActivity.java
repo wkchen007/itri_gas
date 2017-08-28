@@ -123,26 +123,28 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
         stopScan();
         Intent i = new Intent(this, WorkActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putString("address",(String) v.getTag());
+        bundle.putString("address", (String) v.getTag());
         i.putExtras(bundle);
         startActivity(i);
         finish();
-        overridePendingTransition(0,0);
+        overridePendingTransition(0, 0);
     }
 
     @Override
     public void onLeScan(final BluetoothDevice newDeivce, int newRssi, byte[] newScanRecord) {
         if (newDeivce.getName() != null) {
-            if (newDeivce.getName().contains("itri gas sensor") && mDeviceAdapter.getSize() < 5) {
+            if (newDeivce.getName().contains("itri gas sensor")) {
                 if (!mDeviceAdapter.check(newDeivce.getAddress())) {
-                    mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            demo[mDeviceAdapter.getSize() - 1] = DemoFragment.newInstance(newDeivce.getName(), newDeivce.getAddress());
-                            mSectionsPagerAdapter.notifyDataSetChanged();
-                        }
-                    });
+                    if (mDeviceAdapter.getSize() < 5) {
+                        mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                demo[mDeviceAdapter.getSize() - 1] = DemoFragment.newInstance(newDeivce.getName(), newDeivce.getAddress());
+                                mSectionsPagerAdapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
                 } else
                     updateUI(newDeivce, newRssi, newScanRecord);
             }
