@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.itripatch.util.BleUtil;
+import com.itripatch.util.DateUtil;
 import com.itripatch.util.ScannedDevice;
 
 import java.util.ArrayList;
@@ -27,7 +28,9 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
     private FrameLayout waveformLayout;
     private WaveformView waveformView = null;
     private String mAddress = null;
-    public static boolean[] isLine = {true, false, false, false, false, false, false, false, false};
+    private boolean[] isLine = {true, false, false, false, false, false, false, false, false};
+    private float gasLine[] = {-5, -5, -5, -5, -5, -5, -5, -5, -5};
+    private TextView sensitivity, lastTime, startTime, updateTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +47,10 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
         waveformLayout.addView(waveformView);
         Bundle bundle = getIntent().getExtras();
         mAddress = bundle.getString("address");
+        sensitivity = ((TextView) findViewById(R.id.sensitivity));
+        lastTime = (TextView) findViewById(R.id.lastTime);
+        startTime = (TextView) findViewById(R.id.startTime);
+        updateTime = (TextView) findViewById(R.id.updateTime);
     }
 
     @Override
@@ -114,22 +121,19 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
                          final byte[] newScanRecord) {
         String summary = mDeviceAdapter.update(newDeivce, newRssi, newScanRecord);
         if (summary != null) {
-            String data[] = summary.split(",");
-            final String battery[] = data[0].split(";");
-            final String gasEm = data[1];
-            final String gas[] = data[2].split(";");
-            final String temp[] = data[3].split(";");
-            final String hum[] = data[4].split(";");
-            final float gasLine[] = {-5, -5, -5, -5, -5, -5, -5, -5, -5};
-            for (int i = 0; i < gas.length; i++) {
-                int g = Integer.parseInt(gas[i]);
-                float draw = (float) (-5 + (g - 0) / (4000.0 - 0) * (5 + 5));
-                gasLine[i] = draw + getSmooth(draw);
-            }
+            final int g = Integer.parseInt(mDeviceAdapter.getDevice(0).getGas() + "");
+            float draw = (float) (-5 + (g - 0) / (4000.0 - 0) * (5 + 5));
+            gasLine[0] = draw + getSmooth(draw);
+            final long mStartTime = mDeviceAdapter.getDevice(0).getStartTime();
+            final long mUpdateTime = mDeviceAdapter.getDevice(0).getLastUpdatedMs();
+            final long mLastTime = mUpdateTime - mStartTime;
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    ((TextView) findViewById(R.id.sensitivity)).setText("SENSITIVITY " + gas[0]);
+                    sensitivity.setText(g + "");
+                    lastTime.setText(DateUtil.get_lastTime(mLastTime));
+                    startTime.setText(DateUtil.get_yyyyMMddHHmmssSSS(mStartTime));
+                    updateTime.setText(DateUtil.get_yyyyMMddHHmmssSSS(mUpdateTime));
                     try {
                         waveformView.drawACC(gasLine[0], gasLine[1], gasLine[2], gasLine[3], gasLine[4], gasLine[5], gasLine[6], gasLine[7], gasLine[8], isLine);
                     } catch (InterruptedException e) {

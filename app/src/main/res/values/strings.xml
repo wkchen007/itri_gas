@@ -12,6 +12,9 @@
     <string name="warn">偏高</string>
     <string name="careful">過量</string>
     <string name="danger">危險</string>
-    <string name="use_time">使用時間(小時)</string>
+    <string name="use_time">使用時間</string>
+    <string name="start_time">開始時間</string>
+    <string name="update_time">結束時間</string>
     <string name="NA">N/A</string>
+    <string name="sensitivity">SENSITIVITY</string>
 </resources>

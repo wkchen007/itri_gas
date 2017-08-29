@@ -45,12 +45,29 @@
                 android:text="@string/NA"
                 android:textSize="100dp" />
 
-            <TextView
-                android:id="@+id/sensitivity"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="SENSITIVITY N/A"
-                android:textSize="30dp" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/sensitivity"
+                    android:textSize="30dp" />
+
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent" />
+
+                <TextView
+                    android:id="@+id/sensitivity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="N/A"
+                    android:textSize="30dp" />
+            </LinearLayout>
+
         </LinearLayout>
 
         <RelativeLayout
@@ -159,22 +176,57 @@
                 android:textSize="30dp" />
 
             <TextView
+                android:id="@+id/lastTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="1h 23mins"
+                android:text="@string/NA"
                 android:textSize="60dp" />
 
-            <TextView
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="開始時間 2017-07-25 16:00:25"
-                android:textSize="30dp" />
+                android:orientation="horizontal">
 
-            <TextView
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/start_time"
+                    android:textSize="30dp" />
+
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent" />
+
+                <TextView
+                    android:id="@+id/startTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NA"
+                    android:textSize="30dp" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="結束時間 2017-07-25 17:23:25"
-                android:textSize="30dp" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/update_time"
+                    android:textSize="30dp" />
+
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent" />
+
+                <TextView
+                    android:id="@+id/updateTime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/NA"
+                    android:textSize="30dp" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

@@ -26,6 +26,7 @@ import java.util.Locale;
 public class DateUtil {
     private static final ThreadLocal<SimpleDateFormat> mFormater = new ThreadLocal<SimpleDateFormat>() {
         private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
+
         @Override
         protected SimpleDateFormat initialValue() {
             return new SimpleDateFormat(DATE_PATTERN, Locale.ENGLISH);
@@ -34,20 +35,50 @@ public class DateUtil {
 
     private static final ThreadLocal<SimpleDateFormat> mFilenameFormater = new ThreadLocal<SimpleDateFormat>() {
         private static final String FILENAME_PATTERN = "yyyy-MMdd-HH-mm-ss";
+
         @Override
         protected SimpleDateFormat initialValue() {
             return new SimpleDateFormat(FILENAME_PATTERN, Locale.ENGLISH);
         }
     };
 
-    /** get "yyyy-MM-dd HH:mm:ss.SSS" String */
+    private static final int SECOND = 1000;
+    private static final int MINUTE = 60 * SECOND;
+    private static final int HOUR = 60 * MINUTE;
+    private static final int DAY = 24 * HOUR;
+
+    /**
+     * get "yyyy-MM-dd HH:mm:ss.SSS" String
+     */
     public static String get_yyyyMMddHHmmssSSS(long ms) {
         return mFormater.get().format(new Date(ms));
     }
 
-    /** get "yyyy-MMdd-HH-mm-ss.csv" String */
+    /**
+     * get "yyyy-MMdd-HH-mm-ss.csv" String
+     */
     public static String get_nowCsvFilename() {
         return mFilenameFormater.get().format(new Date()) + ".csv";
+    }
+
+    public static String get_lastTime(long ms) {
+        StringBuffer text = new StringBuffer("");
+        if (ms >= MINUTE) {
+            if (ms > HOUR) {
+                text.append(ms / HOUR).append("hr(s) ");
+                ms %= HOUR;
+            }
+            if (ms > MINUTE) {
+                text.append(ms / MINUTE).append("min(s) ");
+                ms %= MINUTE;
+            }
+        } else {
+            if (ms > SECOND) {
+                text.append(ms / SECOND).append("sec(s) ");
+                ms %= SECOND;
+            }
+        }
+        return text.toString();
     }
 
     private DateUtil() {
