@@ -1,15 +1,19 @@
 package com.itripatch.itri_gas;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -32,6 +36,7 @@ import java.util.ArrayList;
 public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback {
     private BluetoothAdapter mBTAdapter;
     private DeviceAdapter mDeviceAdapter;
+    private static final int MY_PERMISSIONS_REQUEST = 1;
     private boolean mIsScanning;
     public static String mode = "demo"; // demo:展示;work:工程
     private View alarmPopupView;
@@ -69,6 +74,42 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
             Toast.makeText(this, R.string.bt_not_enabled, Toast.LENGTH_SHORT).show();
             invalidateOptionsMenu();
         }
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            ArrayList<String> mStringList = new ArrayList<String>();
+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                mStringList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
+            }
+
+            if (mStringList.size() != 0) {
+                String[] mStringArray = new String[mStringList.size()];
+                mStringArray = mStringList.toArray(mStringArray);
+                requestPermissions(mStringArray,
+                        MY_PERMISSIONS_REQUEST);
+            }
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+
+        if (requestCode == MY_PERMISSIONS_REQUEST) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+            } else {
+                // Permission Denied
+                Toast.makeText(this, R.string.error_ACCESS_COARSE_LOCATION, Toast.LENGTH_LONG).show();
+            }
+            return;
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
