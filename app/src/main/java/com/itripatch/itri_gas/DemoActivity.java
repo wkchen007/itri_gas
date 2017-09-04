@@ -38,7 +38,6 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
     private DeviceAdapter mDeviceAdapter;
     private static final int MY_PERMISSIONS_REQUEST = 1;
     private boolean mIsScanning;
-    public static String mode = "demo"; // demo:展示;work:工程
     private View alarmPopupView;
     private Boolean alarmPopupWindowShow = false;
     private PopupWindow alarmPopupWindow;
@@ -291,11 +290,6 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
             mp.setLooping(true);
             mp.seekTo(0);
             mp.start();
-
-            switch (mode) {
-                case "demo":
-                    break;
-            }
             alarmPopupWindowShow = true;
         }
         alarmPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
@@ -321,10 +315,6 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
 
             mp.pause();
             mp.setLooping(false); //停止音樂播放
-            switch (mode) {
-                case "demo":
-                    break;
-            }
             alarmPopupWindowShow = false;
         }
     }

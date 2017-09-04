@@ -30,7 +30,7 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
     private String mAddress = null;
     private boolean[] isLine = {true, false, false, false, false, false, false, false, false};
     private float gasLine[] = {-5, -5, -5, -5, -5, -5, -5, -5, -5};
-    private TextView sensitivity, lastTime, startTime, updateTime;
+    private TextView deviceAddress, deviceName, sensitivity, lastTime, startTime, updateTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +47,9 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
         waveformLayout.addView(waveformView);
         Bundle bundle = getIntent().getExtras();
         mAddress = bundle.getString("address");
-        sensitivity = ((TextView) findViewById(R.id.sensitivity));
+        deviceAddress = (TextView) findViewById(R.id.deviceAddress);
+        deviceName = (TextView) findViewById(R.id.deviceName);
+        sensitivity = (TextView) findViewById(R.id.sensitivity);
         lastTime = (TextView) findViewById(R.id.lastTime);
         startTime = (TextView) findViewById(R.id.startTime);
         updateTime = (TextView) findViewById(R.id.updateTime);
@@ -111,6 +113,13 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
             if (newDeivce.getAddress().contains(mAddress)) {
                 if (!mDeviceAdapter.check(mAddress)) {
                     mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            deviceName.setText(mDeviceAdapter.getDevice(0).getDevice().getName());
+                            deviceAddress.setText(mDeviceAdapter.getDevice(0).getDevice().getAddress());
+                        }
+                    });
                 } else
                     updateUI(newDeivce, newRssi, newScanRecord);
             }

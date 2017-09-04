@@ -4,8 +4,8 @@
     <string name="bt_not_supported">Bluetooth not supported on this device.</string>
     <string name="bt_not_enabled">Bluetooth is not enabled, turn it on.</string>
     <string name="error_ACCESS_COARSE_LOCATION">藍芽需要位置定位權限</string>
-    <string name="action_scan">SCAN</string>
-    <string name="action_stop">STOP</string>
+    <string name="action_scan">掃描</string>
+    <string name="action_stop">停止</string>
     <string name="action_settings">切換工程</string>
     <string name="temperature_unit">溫度(°C)</string>
     <string name="humidity_unit">濕度(%)</string>

@@ -26,7 +26,7 @@ public class DemoFragment extends Fragment {
     private boolean acCreated = false;
     private RelativeLayout relativeLayout;
     private ImageView imageView;
-    private TextView device_name, device_address, temperature, humidity, airStatus, battery;
+    private TextView deviceName, deviceAddress, temperature, humidity, airStatus, battery;
     private LinearLayout goWork;
     public DemoFragment() {
         // Required empty public constructor
@@ -64,13 +64,13 @@ public class DemoFragment extends Fragment {
         temperature = (TextView) getView().findViewById(R.id.temperature);
         humidity = (TextView) getView().findViewById(R.id.humidity);
         airStatus = (TextView) getView().findViewById(R.id.airStatus);
-        device_name = (TextView) getView().findViewById(R.id.device_name);
-        device_address = (TextView) getView().findViewById(R.id.device_address);
+        deviceName = (TextView) getView().findViewById(R.id.deviceName);
+        deviceAddress = (TextView) getView().findViewById(R.id.deviceAddress);
         battery = (TextView) getView().findViewById(R.id.battery);
         goWork = (LinearLayout) getView().findViewById(R.id.goWork);
 
-        device_name.setText(mName);
-        device_address.setText(mAddress);
+        deviceName.setText(mName);
+        deviceAddress.setText(mAddress);
         goWork.setTag(mAddress);
         acCreated = true;
     }
@@ -80,13 +80,13 @@ public class DemoFragment extends Fragment {
     }
 
     public void setEm() {
-        device_name.setTextColor(getResources().getColor(R.color.danger));
-        device_address.setTextColor(getResources().getColor(R.color.danger));
+        deviceName.setTextColor(getResources().getColor(R.color.danger));
+        deviceAddress.setTextColor(getResources().getColor(R.color.danger));
     }
 
     public void setUnEm() {
-        device_name.setTextColor(getResources().getColor(android.R.color.white));
-        device_address.setTextColor(getResources().getColor(android.R.color.white));
+        deviceName.setTextColor(getResources().getColor(android.R.color.white));
+        deviceAddress.setTextColor(getResources().getColor(android.R.color.white));
     }
 
     public void update(int bat, int gas, double temp, double hum) {

@@ -31,7 +31,8 @@
         <activity
             android:name=".WorkActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateAlwaysHidden"></activity>
     </application>
 
 </manifest>

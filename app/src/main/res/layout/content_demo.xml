@@ -11,7 +11,7 @@
         android:background="@color/normal">
 
         <TextView
-            android:id="@+id/device_name"
+            android:id="@+id/deviceName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
@@ -21,7 +21,7 @@
             android:textSize="30dp" />
 
         <TextView
-            android:id="@+id/device_address"
+            android:id="@+id/deviceAddress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
