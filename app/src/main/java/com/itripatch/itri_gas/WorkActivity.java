@@ -103,8 +103,23 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        stopScan();
+        finish();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
+    }
+
+    public void delayMS(int delayValue) {
+        try {
+            Thread.sleep(delayValue); // do nothing for 1000 miliseconds (1 second)
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -188,6 +203,7 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
             return;
         }
         mDeviceAdapter = new DeviceAdapter(this, new ArrayList<ScannedDevice>());
+        delayMS(200);
         startScan();
     }
 

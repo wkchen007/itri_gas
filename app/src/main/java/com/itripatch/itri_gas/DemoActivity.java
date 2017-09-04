@@ -17,6 +17,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +38,7 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
     private BluetoothAdapter mBTAdapter;
     private DeviceAdapter mDeviceAdapter;
     private static final int MY_PERMISSIONS_REQUEST = 1;
+    private static final int GO_WORK = 2;
     private boolean mIsScanning;
     private View alarmPopupView;
     private Boolean alarmPopupWindowShow = false;
@@ -165,9 +167,25 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
         Bundle bundle = new Bundle();
         bundle.putString("address", (String) v.getTag());
         i.putExtras(bundle);
-        startActivity(i);
-        finish();
-        overridePendingTransition(0, 0);
+        startActivityForResult(i, GO_WORK);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case GO_WORK:
+                delayMS(200);
+                startScan();
+                break;
+        }
+    }
+
+    public void delayMS(int delayValue) {
+        try {
+            Thread.sleep(delayValue); // do nothing for 1000 miliseconds (1 second)
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -249,6 +267,7 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
             return;
         }
         mDeviceAdapter = new DeviceAdapter(this, new ArrayList<ScannedDevice>());
+        delayMS(200);
         startScan();
     }
 
