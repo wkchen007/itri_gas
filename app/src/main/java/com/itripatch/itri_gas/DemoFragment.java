@@ -11,6 +11,9 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link DemoFragment#newInstance} factory method to
@@ -20,23 +23,27 @@ public class DemoFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_NAME = "ARG_NAME";
     private static final String ARG_ADDRESS = "ARG_ADDRESS";
+    private static final String ARG_AIR = "ARG_AIR";
 
     private String mName, mAddress;
-
+    private JSONObject mAir;
+    private int mNormal, mWarn, mCareful, mDanger;
     private boolean acCreated = false;
     private RelativeLayout relativeLayout;
     private ImageView imageView;
     private TextView deviceName, deviceAddress, temperature, humidity, airStatus, battery;
     private LinearLayout goWork;
+
     public DemoFragment() {
         // Required empty public constructor
     }
 
-    public static DemoFragment newInstance(String name, String address) {
+    public static DemoFragment newInstance(String name, String address, String airConfig) {
         DemoFragment fragment = new DemoFragment();
         Bundle args = new Bundle();
         args.putString(ARG_NAME, name);
         args.putString(ARG_ADDRESS, address);
+        args.putString(ARG_AIR, airConfig);
         fragment.setArguments(args);
         return fragment;
     }
@@ -47,6 +54,15 @@ public class DemoFragment extends Fragment {
         if (getArguments() != null) {
             mName = getArguments().getString(ARG_NAME);
             mAddress = getArguments().getString(ARG_ADDRESS);
+            try {
+                mAir = new JSONObject(getArguments().getString(ARG_AIR));
+                mNormal = mAir.getInt("normal");
+                mWarn = mAir.getInt("warn");
+                mCareful = mAir.getInt("careful");
+                mDanger = mAir.getInt("danger");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -79,6 +95,12 @@ public class DemoFragment extends Fragment {
         return acCreated;
     }
 
+    public void setNA() {
+        airStatus.setText(R.string.NA);
+        temperature.setText(R.string.NA);
+        humidity.setText(R.string.NA);
+    }
+
     public void setEm() {
         deviceName.setTextColor(getResources().getColor(R.color.danger));
         deviceAddress.setTextColor(getResources().getColor(R.color.danger));
@@ -88,21 +110,32 @@ public class DemoFragment extends Fragment {
         deviceName.setTextColor(getResources().getColor(android.R.color.white));
         deviceAddress.setTextColor(getResources().getColor(android.R.color.white));
     }
+    public void setAir(String air){
+        try {
+            mAir = new JSONObject(air);
+            mNormal = mAir.getInt("normal");
+            mWarn = mAir.getInt("warn");
+            mCareful = mAir.getInt("careful");
+            mDanger = mAir.getInt("danger");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void update(int bat, int gas, double temp, double hum) {
         battery.setText(bat + " %");
         temperature.setText(temp + "");
         humidity.setText(hum + "");
 
-        if (gas < 2000) {
+        if (gas < mNormal) {
             airStatus.setText(R.string.normal);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.normal));
             imageView.setBackground(getResources().getDrawable(R.drawable.normal));
-        } else if (gas >= 2000 && gas < 3000) {
+        } else if (gas >= mNormal && gas < mWarn) {
             airStatus.setText(R.string.warn);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.warn));
             imageView.setBackground(getResources().getDrawable(R.drawable.warn));
-        } else if (gas >= 3000 && gas < 3500) {
+        } else if (gas >= mWarn && gas < mCareful) {
             airStatus.setText(R.string.careful);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.careful));
             imageView.setBackground(getResources().getDrawable(R.drawable.careful));

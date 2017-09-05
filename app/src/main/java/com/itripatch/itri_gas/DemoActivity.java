@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -32,6 +33,9 @@ import android.widget.Toast;
 import com.itripatch.util.BleUtil;
 import com.itripatch.util.ScannedDevice;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback {
@@ -49,6 +53,8 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
     private DemoFragment[] demo = new DemoFragment[5];
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
+    private SharedPreferences sp;
+    private SharedPreferences.Editor ed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +72,7 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         alarmPopupView = getLayoutInflater().inflate(R.layout.alarm_button, null);
+        sp = this.getSharedPreferences("sensorList", MODE_PRIVATE);
     }
 
     @Override
@@ -163,10 +170,17 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
 
     public void tabWork(View v) {
         stopScan();
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
+                    if (demo[i].getAcCreated())
+                        demo[i].setNA();
+                }
+            }
+        });
         Intent i = new Intent(this, WorkActivity.class);
-        Bundle bundle = new Bundle();
-        bundle.putString("address", (String) v.getTag());
-        i.putExtras(bundle);
+        WorkActivity.mAddress = (String) v.getTag();
         startActivityForResult(i, GO_WORK);
     }
 
@@ -174,6 +188,10 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case GO_WORK:
+                for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
+                    if (mDeviceAdapter.getDevice(i).getDevice().getAddress().equals(WorkActivity.mAddress))
+                        demo[i].setAir(sp.getString(WorkActivity.mAddress, null));
+                }
                 delayMS(200);
                 startScan();
                 break;
@@ -195,10 +213,26 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
                 if (!mDeviceAdapter.check(newDeivce.getAddress())) {
                     if (mDeviceAdapter.getSize() < 5) {
                         mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
+                        final String mName = newDeivce.getName();
+                        final String mAddress = newDeivce.getAddress();
+                        String airConfig = null;
+                        if (sp.getString(mAddress, null) != null)
+                            airConfig = sp.getString(mAddress, null);
+                        else {
+                            ed = sp.edit();
+                            try {
+                                airConfig = "{\"normal\":2000,\"warn\":3000,\"careful\":3500,\"danger\":4000}";
+                                ed.putString(mAddress, new JSONObject(airConfig).toString());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            ed.commit();
+                        }
+                        final String finalAirConfig = airConfig;
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                demo[mDeviceAdapter.getSize() - 1] = DemoFragment.newInstance(newDeivce.getName(), newDeivce.getAddress());
+                                demo[mDeviceAdapter.getSize() - 1] = DemoFragment.newInstance(mName, mAddress, finalAirConfig);
                                 mSectionsPagerAdapter.notifyDataSetChanged();
                             }
                         });

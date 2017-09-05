@@ -103,11 +103,13 @@
                 </LinearLayout>
 
                 <EditText
+                    android:id="@+id/normal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="20dp"
-                    android:text="2000"
+                    android:inputType="number"
+                    android:text="@string/NA"
                     android:textSize="20dp" />
 
                 <LinearLayout
@@ -131,11 +133,13 @@
                 </LinearLayout>
 
                 <EditText
+                    android:id="@+id/warn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="20dp"
-                    android:text="3000"
+                    android:inputType="number"
+                    android:text="@string/NA"
                     android:textSize="20dp" />
 
                 <LinearLayout
@@ -159,11 +163,13 @@
                 </LinearLayout>
 
                 <EditText
+                    android:id="@+id/careful"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="20dp"
-                    android:text="3500"
+                    android:inputType="number"
+                    android:text="@string/NA"
                     android:textSize="20dp" />
 
                 <LinearLayout
@@ -187,11 +193,13 @@
                 </LinearLayout>
 
                 <EditText
+                    android:id="@+id/danger"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
                     android:layout_marginTop="20dp"
-                    android:text="4000"
+                    android:inputType="number"
+                    android:text="@string/NA"
                     android:textSize="20dp" />
 
             </LinearLayout>

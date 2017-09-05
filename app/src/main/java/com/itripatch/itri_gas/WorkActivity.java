@@ -3,13 +3,17 @@ package com.itripatch.itri_gas;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +21,9 @@ import android.widget.Toast;
 import com.itripatch.util.BleUtil;
 import com.itripatch.util.DateUtil;
 import com.itripatch.util.ScannedDevice;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -27,10 +34,14 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
     private Toolbar toolbar;
     private FrameLayout waveformLayout;
     private WaveformView waveformView = null;
-    private String mAddress = null;
+    public static String mAddress = null;
     private boolean[] isLine = {true, false, false, false, false, false, false, false, false};
     private float gasLine[] = {-5, -5, -5, -5, -5, -5, -5, -5, -5};
     private TextView deviceAddress, deviceName, sensitivity, lastTime, startTime, updateTime;
+    private EditText normal, warn, careful, danger;
+    private JSONObject mAir;
+    private SharedPreferences sp;
+    private SharedPreferences.Editor ed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,14 +56,27 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
         waveformLayout = (FrameLayout) findViewById(R.id.wave_frame);
         waveformView = new WaveformView(this, null);
         waveformLayout.addView(waveformView);
-        Bundle bundle = getIntent().getExtras();
-        mAddress = bundle.getString("address");
         deviceAddress = (TextView) findViewById(R.id.deviceAddress);
         deviceName = (TextView) findViewById(R.id.deviceName);
         sensitivity = (TextView) findViewById(R.id.sensitivity);
         lastTime = (TextView) findViewById(R.id.lastTime);
         startTime = (TextView) findViewById(R.id.startTime);
         updateTime = (TextView) findViewById(R.id.updateTime);
+        sp = this.getSharedPreferences("sensorList", MODE_PRIVATE);
+        normal = (EditText) findViewById(R.id.normal);
+        warn = (EditText) findViewById(R.id.warn);
+        careful = (EditText) findViewById(R.id.careful);
+        danger = (EditText) findViewById(R.id.danger);
+        try {
+            mAir = new JSONObject(sp.getString(mAddress, null));
+            normal.setText(mAir.getInt("normal") + "");
+            warn.setText(mAir.getInt("warn") + "");
+            careful.setText(mAir.getInt("careful") + "");
+            danger.setText(mAir.getInt("danger") + "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        ed_change();
     }
 
     @Override
@@ -225,4 +249,94 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
         invalidateOptionsMenu();
     }
 
+    private void ed_change() {
+        normal.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                try {
+                    mAir.put("normal", Integer.parseInt(s + ""));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                ed = sp.edit();
+                ed.putString(mAddress, mAir.toString());
+                ed.commit();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        warn.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                try {
+                    mAir.put("warn", Integer.parseInt(s + ""));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                ed = sp.edit();
+                ed.putString(mAddress, mAir.toString());
+                ed.commit();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        careful.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                try {
+                    mAir.put("careful", Integer.parseInt(s + ""));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                ed = sp.edit();
+                ed.putString(mAddress, mAir.toString());
+                ed.commit();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+        danger.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                try {
+                    mAir.put("danger", Integer.parseInt(s + ""));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                ed = sp.edit();
+                ed.putString(mAddress, mAir.toString());
+                ed.commit();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+    }
 }
