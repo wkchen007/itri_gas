@@ -37,7 +37,7 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
     public static String mAddress = null;
     private boolean[] isLine = {true, false, false, false, false, false, false, false, false};
     private float gasLine[] = {-5, -5, -5, -5, -5, -5, -5, -5, -5};
-    private TextView deviceAddress, deviceName, sensitivity, lastTime, startTime, updateTime;
+    private TextView deviceAddress, deviceName, sensitivity, min, max, range, lastTime, startTime, updateTime;
     private EditText normal, warn, careful, danger;
     private JSONObject mAir;
     private SharedPreferences sp;
@@ -59,6 +59,9 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
         deviceAddress = (TextView) findViewById(R.id.deviceAddress);
         deviceName = (TextView) findViewById(R.id.deviceName);
         sensitivity = (TextView) findViewById(R.id.sensitivity);
+        min = (TextView) findViewById(R.id.min);
+        max = (TextView) findViewById(R.id.max);
+        range = (TextView) findViewById(R.id.range);
         lastTime = (TextView) findViewById(R.id.lastTime);
         startTime = (TextView) findViewById(R.id.startTime);
         updateTime = (TextView) findViewById(R.id.updateTime);
@@ -175,10 +178,16 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
             final long mStartTime = mDeviceAdapter.getDevice(0).getStartTime();
             final long mUpdateTime = mDeviceAdapter.getDevice(0).getLastUpdatedMs();
             final long mLastTime = mUpdateTime - mStartTime;
+            final int mMin = mDeviceAdapter.getDevice(0).getGasMin();
+            final int mMax = mDeviceAdapter.getDevice(0).getGasMax();
+            final int mRange = mDeviceAdapter.getDevice(0).getGasRange();
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
                     sensitivity.setText(g + "");
+                    min.setText(mMin + "");
+                    max.setText(mMax + "");
+                    range.setText(mRange + "");
                     lastTime.setText(DateUtil.get_lastTime(mLastTime));
                     startTime.setText(DateUtil.get_yyyyMMddHHmmssSSS(mStartTime));
                     updateTime.setText(DateUtil.get_yyyyMMddHHmmssSSS(mUpdateTime));

@@ -17,5 +17,8 @@
     <string name="start_time">開始時間</string>
     <string name="update_time">結束時間</string>
     <string name="NA">N/A</string>
-    <string name="sensitivity">SENSITIVITY</string>
+    <string name="sensitivity">Sensitivity</string>
+    <string name="min">Min</string>
+    <string name="max">Max</string>
+    <string name="range">Range</string>
 </resources>
