@@ -110,7 +110,8 @@ public class DemoFragment extends Fragment {
         deviceName.setTextColor(getResources().getColor(android.R.color.white));
         deviceAddress.setTextColor(getResources().getColor(android.R.color.white));
     }
-    public void setAir(String air){
+
+    public void setAir(String air) {
         try {
             mAir = new JSONObject(air);
             mNormal = mAir.getInt("normal");
@@ -130,19 +131,19 @@ public class DemoFragment extends Fragment {
         if (gas < mNormal) {
             airStatus.setText(R.string.normal);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.normal));
-            imageView.setBackground(getResources().getDrawable(R.drawable.normal));
+            imageView.setImageResource(R.drawable.bottle_n);
         } else if (gas >= mNormal && gas < mWarn) {
             airStatus.setText(R.string.warn);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.warn));
-            imageView.setBackground(getResources().getDrawable(R.drawable.warn));
+            imageView.setImageResource(R.drawable.bottle_w);
         } else if (gas >= mWarn && gas < mCareful) {
             airStatus.setText(R.string.careful);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.careful));
-            imageView.setBackground(getResources().getDrawable(R.drawable.careful));
+            imageView.setImageResource(R.drawable.bottle_c);
         } else {
             airStatus.setText(R.string.danger);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.danger));
-            imageView.setBackground(getResources().getDrawable(R.drawable.danger));
+            imageView.setImageResource(R.drawable.bottle_d);
         }
     }
 }

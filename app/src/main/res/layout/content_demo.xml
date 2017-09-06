@@ -15,7 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="80dp"
+            android:layout_marginTop="10dp"
             android:text=""
             android:textColor="@android:color/white"
             android:textSize="30dp" />
@@ -25,23 +25,33 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="120dp"
+            android:layout_marginTop="50dp"
             android:text=""
             android:textColor="@android:color/white"
             android:textSize="30dp" />
 
         <ImageView
-            android:id="@+id/imageView"
+            android:id="@+id/circle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="150dp"
-            android:src="@drawable/normal" />
+            android:layout_marginTop="100dp"
+            android:src="@drawable/circle" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/circle"
+            android:layout_alignTop="@+id/circle"
+            android:layout_marginLeft="-40dp"
+            android:layout_marginTop="100dp"
+            android:src="@drawable/bottle_n" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/imageView"
+            android:layout_alignTop="@+id/circle"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="120dp"
             android:text="@string/app_name"
@@ -52,12 +62,25 @@
             android:id="@+id/airStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignTop="@+id/imageView"
+            android:layout_alignTop="@+id/circle"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="160dp"
             android:text="@string/NA"
             android:textColor="@android:color/white"
             android:textSize="100dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="560dp"
+            android:background="#FFFFFF" />
+
+        <TextView
+            android:layout_width="2dp"
+            android:layout_height="150dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="560dp"
+            android:background="#FFFFFF" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -113,5 +136,6 @@
             android:textColor="@android:color/white"
             android:textSize="40dp" />
     </RelativeLayout>
+
     <include layout="@layout/tab_layout" />
 </RelativeLayout>
