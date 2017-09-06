@@ -1,9 +1,15 @@
 package com.itripatch.itri_gas;
 
 import android.Manifest;
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -37,13 +43,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback {
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+public class DemoActivity extends AppCompatActivity {
     private BluetoothAdapter mBTAdapter;
     private DeviceAdapter mDeviceAdapter;
     private static final int MY_PERMISSIONS_REQUEST = 1;
     private static final int GO_WORK = 2;
     private boolean mIsScanning;
+    private BluetoothLeScanner mLEScanner;
+    private ScanSettings settings;
+    private List<ScanFilter> filters;
     private View alarmPopupView;
     private Boolean alarmPopupWindowShow = false;
     private PopupWindow alarmPopupWindow;
@@ -81,6 +92,16 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
         if ((mBTAdapter != null) && (!mBTAdapter.isEnabled())) {
             Toast.makeText(this, R.string.bt_not_enabled, Toast.LENGTH_SHORT).show();
             invalidateOptionsMenu();
+            finish();
+        } else {
+            mLEScanner = mBTAdapter.getBluetoothLeScanner();
+            settings = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build();
+            filters = new ArrayList<ScanFilter>();
+            ScanFilter filter = new ScanFilter.Builder().setDeviceName("itri gas sensor 1.1").build();
+            filters.add(filter);
+            startScan();
         }
     }
 
@@ -192,7 +213,6 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
                     if (mDeviceAdapter.getDevice(i).getDevice().getAddress().equals(WorkActivity.mAddress))
                         demo[i].setAir(sp.getString(WorkActivity.mAddress, null));
                 }
-                delayMS(200);
                 startScan();
                 break;
         }
@@ -206,42 +226,43 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
         }
     }
 
-    @Override
-    public void onLeScan(final BluetoothDevice newDeivce, int newRssi, byte[] newScanRecord) {
-        if (newDeivce.getName() != null) {
-            if (newDeivce.getName().contains("itri gas sensor")) {
-                if (!mDeviceAdapter.check(newDeivce.getAddress())) {
-                    if (mDeviceAdapter.getSize() < 5) {
-                        mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
-                        final String mName = newDeivce.getName();
-                        final String mAddress = newDeivce.getAddress();
-                        String airConfig = null;
-                        if (sp.getString(mAddress, null) != null)
-                            airConfig = sp.getString(mAddress, null);
-                        else {
-                            ed = sp.edit();
-                            try {
-                                airConfig = "{\"normal\":2000,\"warn\":3000,\"careful\":3500,\"danger\":4000}";
-                                ed.putString(mAddress, new JSONObject(airConfig).toString());
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            ed.commit();
+    private ScanCallback mScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            BluetoothDevice newDeivce = result.getDevice();
+            int newRssi = result.getRssi();
+            byte[] newScanRecord = result.getScanRecord().getBytes();
+            if (!mDeviceAdapter.check(newDeivce.getAddress())) {
+                if (mDeviceAdapter.getSize() < 5) {
+                    mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
+                    final String mName = newDeivce.getName();
+                    final String mAddress = newDeivce.getAddress();
+                    String airConfig = null;
+                    if (sp.getString(mAddress, null) != null)
+                        airConfig = sp.getString(mAddress, null);
+                    else {
+                        ed = sp.edit();
+                        try {
+                            airConfig = "{\"normal\":2000,\"warn\":3000,\"careful\":3500,\"danger\":4000}";
+                            ed.putString(mAddress, new JSONObject(airConfig).toString());
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                        final String finalAirConfig = airConfig;
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                demo[mDeviceAdapter.getSize() - 1] = DemoFragment.newInstance(mName, mAddress, finalAirConfig);
-                                mSectionsPagerAdapter.notifyDataSetChanged();
-                            }
-                        });
+                        ed.commit();
                     }
-                } else
-                    updateUI(newDeivce, newRssi, newScanRecord);
-            }
+                    final String finalAirConfig = airConfig;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            demo[mDeviceAdapter.getSize() - 1] = DemoFragment.newInstance(mName, mAddress, finalAirConfig);
+                            mSectionsPagerAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            } else
+                updateUI(newDeivce, newRssi, newScanRecord);
         }
-    }
+    };
 
     public void updateUI(final BluetoothDevice newDeivce, final int newRssi,
                          final byte[] newScanRecord) {
@@ -301,13 +322,11 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
             return;
         }
         mDeviceAdapter = new DeviceAdapter(this, new ArrayList<ScannedDevice>());
-        delayMS(200);
-        startScan();
     }
 
     private void startScan() {
         if ((mBTAdapter != null) && (!mIsScanning)) {
-            mBTAdapter.startLeScan(this);
+            mLEScanner.startScan(filters, settings, mScanCallback);
             mIsScanning = true;
             setProgressBarIndeterminateVisibility(true);
             invalidateOptionsMenu();
@@ -316,7 +335,7 @@ public class DemoActivity extends AppCompatActivity implements BluetoothAdapter.
 
     private void stopScan() {
         if (mBTAdapter != null) {
-            mBTAdapter.stopLeScan(this);
+            mLEScanner.stopScan(mScanCallback);
         }
         mIsScanning = false;
         setProgressBarIndeterminateVisibility(false);

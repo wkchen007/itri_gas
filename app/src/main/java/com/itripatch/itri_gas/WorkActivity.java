@@ -1,9 +1,16 @@
 package com.itripatch.itri_gas;
 
+import android.annotation.TargetApi;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
+import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -26,11 +33,16 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.LeScanCallback {
+@TargetApi(Build.VERSION_CODES.LOLLIPOP)
+public class WorkActivity extends AppCompatActivity {
     private BluetoothAdapter mBTAdapter;
     private DeviceAdapter mDeviceAdapter;
     private boolean mIsScanning;
+    private BluetoothLeScanner mLEScanner;
+    private ScanSettings settings;
+    private List<ScanFilter> filters;
     private Toolbar toolbar;
     private FrameLayout waveformLayout;
     private WaveformView waveformView = null;
@@ -88,6 +100,16 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
         if ((mBTAdapter != null) && (!mBTAdapter.isEnabled())) {
             Toast.makeText(this, R.string.bt_not_enabled, Toast.LENGTH_SHORT).show();
             invalidateOptionsMenu();
+            finish();
+        } else {
+            mLEScanner = mBTAdapter.getBluetoothLeScanner();
+            settings = new ScanSettings.Builder()
+                    .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                    .build();
+            filters = new ArrayList<ScanFilter>();
+            ScanFilter filter = new ScanFilter.Builder().setDeviceAddress(mAddress).build();
+            filters.add(filter);
+            startScan();
         }
     }
 
@@ -149,24 +171,25 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
         }
     }
 
-    @Override
-    public void onLeScan(final BluetoothDevice newDeivce, int newRssi, byte[] newScanRecord) {
-        if (newDeivce.getName() != null) {
-            if (newDeivce.getAddress().contains(mAddress)) {
-                if (!mDeviceAdapter.check(mAddress)) {
-                    mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            deviceName.setText(mDeviceAdapter.getDevice(0).getDevice().getName());
-                            deviceAddress.setText(mDeviceAdapter.getDevice(0).getDevice().getAddress());
-                        }
-                    });
-                } else
-                    updateUI(newDeivce, newRssi, newScanRecord);
-            }
+    private ScanCallback mScanCallback = new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            BluetoothDevice newDeivce = result.getDevice();
+            int newRssi = result.getRssi();
+            byte[] newScanRecord = result.getScanRecord().getBytes();
+            if (!mDeviceAdapter.check(mAddress)) {
+                mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        deviceName.setText(mDeviceAdapter.getDevice(0).getDevice().getName());
+                        deviceAddress.setText(mDeviceAdapter.getDevice(0).getDevice().getAddress());
+                    }
+                });
+            } else
+                updateUI(newDeivce, newRssi, newScanRecord);
         }
-    }
+    };
 
     public void updateUI(final BluetoothDevice newDeivce, final int newRssi,
                          final byte[] newScanRecord) {
@@ -236,13 +259,11 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
             return;
         }
         mDeviceAdapter = new DeviceAdapter(this, new ArrayList<ScannedDevice>());
-        delayMS(200);
-        startScan();
     }
 
     private void startScan() {
         if ((mBTAdapter != null) && (!mIsScanning)) {
-            mBTAdapter.startLeScan(this);
+            mLEScanner.startScan(filters, settings, mScanCallback);
             mIsScanning = true;
             setProgressBarIndeterminateVisibility(true);
             invalidateOptionsMenu();
@@ -251,7 +272,7 @@ public class WorkActivity extends AppCompatActivity implements BluetoothAdapter.
 
     private void stopScan() {
         if (mBTAdapter != null) {
-            mBTAdapter.stopLeScan(this);
+            mLEScanner.stopScan(mScanCallback);
         }
         mIsScanning = false;
         setProgressBarIndeterminateVisibility(false);
