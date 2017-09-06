@@ -6,6 +6,8 @@ import android.util.Log;
 
 import com.radiusnetworks.ibeacon.IBeacon;
 
+import static android.content.ContentValues.TAG;
+
 public class ScannedDevice {
     private static final String UNKNOWN = "Unknown";
 
@@ -14,8 +16,9 @@ public class ScannedDevice {
     private String mDisplayName;
     private byte[] mScanRecord;
     private int mRssi;
-    private long mStartTime, mLastUpdatedMs;
+    private long mStartTime, mLastUpdatedMs, mGasRatioMs;
     private int mPower, mGas, mGasMax, mGasMin, mGasRange;
+    private double mGasRatio, mGasBase;
     private boolean mGasAlarm, mEmergencyBit;
     private double mTemperature, mHumidity;
     private boolean ignore = false;
@@ -26,6 +29,7 @@ public class ScannedDevice {
         }
         mLastUpdatedMs = now;
         mStartTime = now;
+        mGasRatio = now;
         mDevice = device;
         mDisplayName = device.getName();
         if ((mDisplayName == null) || (mDisplayName.length() == 0)) {
@@ -38,6 +42,7 @@ public class ScannedDevice {
         mGasMax = 0;
         mGasMin = 4095;
         mGasRange = mGasMax - mGasMin;
+        mGasBase = (short) Integer.parseInt(ScannedDevice.asHex(mScanRecord).substring(14, 18), 16);
         setGas();
         setTemperature();
         setHumidity();
@@ -144,6 +149,12 @@ public class ScannedDevice {
         if (mGas < mGasMin)
             mGasMin = mGas;
         mGasRange = mGasMax - mGasMin;
+        if ((mLastUpdatedMs - mGasRatioMs) >= 1500) {
+            double d = (mGas - mGasBase) / mGasBase;
+            mGasRatio = Math.floor(d * 10000) / 100.0;
+            mGasBase = mGas;
+            mGasRatioMs = mLastUpdatedMs;
+        }
     }
 
     public int getGasMax() {
@@ -157,6 +168,8 @@ public class ScannedDevice {
     public int getGasRange() {
         return mGasRange;
     }
+
+    public double getGasRatio() { return mGasRatio; }
 
     public double getTemperature() {
         return mTemperature;

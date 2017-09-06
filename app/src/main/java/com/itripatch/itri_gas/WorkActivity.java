@@ -49,7 +49,7 @@ public class WorkActivity extends AppCompatActivity {
     public static String mAddress = null;
     private boolean[] isLine = {true, false, false, false, false, false, false, false, false};
     private float gasLine[] = {-5, -5, -5, -5, -5, -5, -5, -5, -5};
-    private TextView deviceAddress, deviceName, sensitivity, min, max, range, lastTime, startTime, updateTime;
+    private TextView deviceAddress, deviceName, sensitivity, gasRatio, min, max, range, lastTime, startTime, updateTime;
     private EditText normal, warn, careful, danger;
     private JSONObject mAir;
     private SharedPreferences sp;
@@ -71,6 +71,7 @@ public class WorkActivity extends AppCompatActivity {
         deviceAddress = (TextView) findViewById(R.id.deviceAddress);
         deviceName = (TextView) findViewById(R.id.deviceName);
         sensitivity = (TextView) findViewById(R.id.sensitivity);
+        gasRatio = (TextView) findViewById(R.id.gasRatio);
         min = (TextView) findViewById(R.id.min);
         max = (TextView) findViewById(R.id.max);
         range = (TextView) findViewById(R.id.range);
@@ -200,6 +201,7 @@ public class WorkActivity extends AppCompatActivity {
             gasLine[0] = draw + getSmooth(draw);
             final long mStartTime = mDeviceAdapter.getDevice(0).getStartTime();
             final long mUpdateTime = mDeviceAdapter.getDevice(0).getLastUpdatedMs();
+            final double mGasRatio = mDeviceAdapter.getDevice(0).getGasRatio();
             final long mLastTime = mUpdateTime - mStartTime;
             final int mMin = mDeviceAdapter.getDevice(0).getGasMin();
             final int mMax = mDeviceAdapter.getDevice(0).getGasMax();
@@ -214,6 +216,7 @@ public class WorkActivity extends AppCompatActivity {
                     lastTime.setText(DateUtil.get_lastTime(mLastTime));
                     startTime.setText(DateUtil.get_yyyyMMddHHmmssSSS(mStartTime));
                     updateTime.setText(DateUtil.get_yyyyMMddHHmmssSSS(mUpdateTime));
+                    gasRatio.setText(mGasRatio + " %");
                     try {
                         waveformView.drawACC(gasLine[0], gasLine[1], gasLine[2], gasLine[3], gasLine[4], gasLine[5], gasLine[6], gasLine[7], gasLine[8], isLine);
                     } catch (InterruptedException e) {
