@@ -180,6 +180,13 @@ public class DemoActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        stopScan();
+        finish();
+    }
+
+    @Override
     protected void onDestroy() {
         if (mp != null) {
             mp.pause();
