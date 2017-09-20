@@ -3,6 +3,7 @@ package com.itripatch.itri_gas;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -127,10 +128,11 @@ public class DemoFragment extends Fragment {
         battery.setText(bat + " %");
         temperature.setText(temp + "");
         humidity.setText(hum + "");
-        double normal = gasMin + gasMin * mNormal / 100.0;
-        double warn = gasMin + gasMin * mWarn / 100.0;
-        double careful = gasMin + gasMin * mCareful / 100.0;
-        double danger = gasMin + gasMin * mDanger / 100.0;
+        int normal = (int) Math.floor(gasMin + gasMin * mNormal / 100.0);
+        Log.i("TTT", "update: " + normal);
+        int warn = (int) Math.floor(gasMin + gasMin * mWarn / 100.0);
+        int careful = (int) Math.floor(gasMin + gasMin * mCareful / 100.0);
+        int danger = (int) Math.floor(gasMin + gasMin * mDanger / 100.0);
         if (gas < normal) {
             airStatus.setText(R.string.normal);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.normal));

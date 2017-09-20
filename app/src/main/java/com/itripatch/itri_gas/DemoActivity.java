@@ -198,6 +198,7 @@ public class DemoActivity extends AppCompatActivity {
 
     public void tabWork(View v) {
         stopScan();
+        final String address = (String) v.getTag();
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -208,7 +209,7 @@ public class DemoActivity extends AppCompatActivity {
             }
         });
         Intent i = new Intent(this, WorkActivity.class);
-        WorkActivity.mAddress = (String) v.getTag();
+        WorkActivity.mAddress = address;
         startActivityForResult(i, GO_WORK);
     }
 
@@ -281,6 +282,7 @@ public class DemoActivity extends AppCompatActivity {
             final String gas[] = data[2].split(";");
             final String temp[] = data[3].split(";");
             final String hum[] = data[4].split(";");
+            final String gasMin[] = data[5].split(";");
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -291,7 +293,7 @@ public class DemoActivity extends AppCompatActivity {
                                 demo[i].setEm();
                             else
                                 demo[i].setUnEm();
-                            demo[i].update(Integer.parseInt(battery[i]), Integer.parseInt(gas[i]), 1000, Double.parseDouble(temp[i]), Double.parseDouble(hum[i]));
+                            demo[i].update(Integer.parseInt(battery[i]), Integer.parseInt(gas[i]), Integer.parseInt(gasMin[i]), Double.parseDouble(temp[i]), Double.parseDouble(hum[i]));
                             mSectionsPagerAdapter.notifyDataSetChanged();
                         }
                     }

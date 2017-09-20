@@ -66,19 +66,22 @@ public class DeviceAdapter {
         String gas = "";
         String temp = "";
         String hum = "";
+        String gasMin = "";
         for (ScannedDevice device : mList) {
             battery += device.getPower() + ";";
             em += device.getGasAlarm() + ";";
             gas += device.getGas() + ";";
             temp += device.getTemperature() + ";";
             hum += device.getHumidity() + ";";
+            gasMin += device.getGasMin() + ";";
         }
         battery = battery.substring(0, battery.length() - 1);
         em = em.substring(0, em.length() - 1);
         gas = gas.substring(0, gas.length() - 1);
         temp = temp.substring(0, temp.length() - 1);
         hum = hum.substring(0, hum.length() - 1);
-        String summary = battery + "," + em + "," + gas + "," + temp + "," + hum;
+        gasMin = gasMin.substring(0, gasMin.length() - 1);
+        String summary = battery + "," + em + "," + gas + "," + temp + "," + hum + "," + gasMin;
 
         return summary;
     }

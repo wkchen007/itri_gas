@@ -208,6 +208,10 @@ public class WorkActivity extends AppCompatActivity {
             final int mMin = mDeviceAdapter.getDevice(0).getGasMin();
             final int mMax = mDeviceAdapter.getDevice(0).getGasMax();
             final int mRange = mDeviceAdapter.getDevice(0).getGasRange();
+            String str = normal.getText() + "";
+            if (str.equals(""))
+                str = "0";
+            final int normal = (int) Math.floor(mMin + mMin * Integer.parseInt(str + "") / 100.0);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -219,6 +223,7 @@ public class WorkActivity extends AppCompatActivity {
                     startTime.setText(DateUtil.get_yyyyMMddHHmmssSSS(mStartTime));
                     updateTime.setText(DateUtil.get_yyyyMMddHHmmssSSS(mUpdateTime));
                     gasRatio.setText(mGasRatio + " %");
+                    showNormal.setText(normal + "");
                     try {
                         waveformView.drawACC(gasLine[0], gasLine[1], gasLine[2], gasLine[3], gasLine[4], gasLine[5], gasLine[6], gasLine[7], gasLine[8], isLine);
                     } catch (InterruptedException e) {
@@ -300,9 +305,6 @@ public class WorkActivity extends AppCompatActivity {
                 ed = sp.edit();
                 ed.putString(mAddress, mAir.toString());
                 ed.commit();
-                int gasMin = mDeviceAdapter.getDevice(0).getGasMin();
-                double normal = gasMin + gasMin * Integer.parseInt(str + "") / 100.0;
-                showNormal.setText(normal + "");
             }
 
             @Override
