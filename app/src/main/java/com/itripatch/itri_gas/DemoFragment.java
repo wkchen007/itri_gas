@@ -123,20 +123,23 @@ public class DemoFragment extends Fragment {
         }
     }
 
-    public void update(int bat, int gas, double temp, double hum) {
+    public void update(int bat, int gas, int gasMin, double temp, double hum) {
         battery.setText(bat + " %");
         temperature.setText(temp + "");
         humidity.setText(hum + "");
-
-        if (gas < mNormal) {
+        double normal = gasMin + gasMin * mNormal / 100.0;
+        double warn = gasMin + gasMin * mWarn / 100.0;
+        double careful = gasMin + gasMin * mCareful / 100.0;
+        double danger = gasMin + gasMin * mDanger / 100.0;
+        if (gas < normal) {
             airStatus.setText(R.string.normal);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.normal));
             imageView.setImageResource(R.drawable.bottle_n);
-        } else if (gas >= mNormal && gas < mWarn) {
+        } else if (gas >= normal && gas < warn) {
             airStatus.setText(R.string.warn);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.warn));
             imageView.setImageResource(R.drawable.bottle_w);
-        } else if (gas >= mWarn && gas < mCareful) {
+        } else if (gas >= warn && gas < careful) {
             airStatus.setText(R.string.careful);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.careful));
             imageView.setImageResource(R.drawable.bottle_c);

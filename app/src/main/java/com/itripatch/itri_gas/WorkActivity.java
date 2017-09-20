@@ -50,6 +50,7 @@ public class WorkActivity extends AppCompatActivity {
     private boolean[] isLine = {true, false, false, false, false, false, false, false, false};
     private float gasLine[] = {-5, -5, -5, -5, -5, -5, -5, -5, -5};
     private TextView deviceAddress, deviceName, sensitivity, gasRatio, min, max, range, lastTime, startTime, updateTime;
+    private TextView showNormal;
     private EditText normal, warn, careful, danger;
     private JSONObject mAir;
     private SharedPreferences sp;
@@ -80,6 +81,7 @@ public class WorkActivity extends AppCompatActivity {
         updateTime = (TextView) findViewById(R.id.updateTime);
         sp = this.getSharedPreferences("sensorList", MODE_PRIVATE);
         normal = (EditText) findViewById(R.id.normal);
+        showNormal = (TextView) findViewById(R.id.showNormal);
         warn = (EditText) findViewById(R.id.warn);
         careful = (EditText) findViewById(R.id.careful);
         danger = (EditText) findViewById(R.id.danger);
@@ -287,14 +289,20 @@ public class WorkActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
+                String str = s + "";
+                if (str.equals(""))
+                    str = "0";
                 try {
-                    mAir.put("normal", Integer.parseInt(s + ""));
+                    mAir.put("normal", Integer.parseInt(str));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 ed = sp.edit();
                 ed.putString(mAddress, mAir.toString());
                 ed.commit();
+                int gasMin = mDeviceAdapter.getDevice(0).getGasMin();
+                double normal = gasMin + gasMin * Integer.parseInt(str + "") / 100.0;
+                showNormal.setText(normal + "");
             }
 
             @Override

@@ -250,7 +250,7 @@ public class DemoActivity extends AppCompatActivity {
                     else {
                         ed = sp.edit();
                         try {
-                            airConfig = "{\"normal\":2000,\"warn\":3000,\"careful\":3500,\"danger\":4000}";
+                            airConfig = "{\"normal\":10,\"warn\":20,\"careful\":30,\"danger\":40}";
                             ed.putString(mAddress, new JSONObject(airConfig).toString());
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -291,7 +291,7 @@ public class DemoActivity extends AppCompatActivity {
                                 demo[i].setEm();
                             else
                                 demo[i].setUnEm();
-                            demo[i].update(Integer.parseInt(battery[i]), Integer.parseInt(gas[i]), Double.parseDouble(temp[i]), Double.parseDouble(hum[i]));
+                            demo[i].update(Integer.parseInt(battery[i]), Integer.parseInt(gas[i]), 1000, Double.parseDouble(temp[i]), Double.parseDouble(hum[i]));
                             mSectionsPagerAdapter.notifyDataSetChanged();
                         }
                     }
