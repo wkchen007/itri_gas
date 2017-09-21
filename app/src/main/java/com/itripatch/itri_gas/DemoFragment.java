@@ -129,7 +129,6 @@ public class DemoFragment extends Fragment {
         temperature.setText(temp + "");
         humidity.setText(hum + "");
         int normal = (int) Math.floor(gasMin + gasMin * mNormal / 100.0);
-        Log.i("TTT", "update: " + normal);
         int warn = (int) Math.floor(gasMin + gasMin * mWarn / 100.0);
         int careful = (int) Math.floor(gasMin + gasMin * mCareful / 100.0);
         int danger = (int) Math.floor(gasMin + gasMin * mDanger / 100.0);

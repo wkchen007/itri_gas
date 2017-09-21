@@ -193,7 +193,7 @@
 
                     <EditText
                         android:id="@+id/normal"
-                        android:layout_width="wrap_content"
+                        android:layout_width="50dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
                         android:inputType="number"
@@ -221,15 +221,28 @@
                         android:textSize="24dp" />
                 </LinearLayout>
 
-                <EditText
-                    android:id="@+id/warn"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
-                    android:layout_marginTop="20dp"
-                    android:inputType="number"
-                    android:text="@string/NA"
-                    android:textSize="20dp" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/showWarn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="20dp" />
+
+                    <EditText
+                        android:id="@+id/warn"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:inputType="number"
+                        android:text="@string/NA"
+                        android:textSize="18dp" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -251,15 +264,28 @@
                         android:textSize="24dp" />
                 </LinearLayout>
 
-                <EditText
-                    android:id="@+id/careful"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
-                    android:layout_marginTop="20dp"
-                    android:inputType="number"
-                    android:text="@string/NA"
-                    android:textSize="20dp" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/showCareful"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="20dp" />
+
+                    <EditText
+                        android:id="@+id/careful"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:inputType="number"
+                        android:text="@string/NA"
+                        android:textSize="18dp" />
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -281,15 +307,28 @@
                         android:textSize="24dp" />
                 </LinearLayout>
 
-                <EditText
-                    android:id="@+id/danger"
+                <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"
-                    android:layout_marginTop="20dp"
-                    android:inputType="number"
-                    android:text="@string/NA"
-                    android:textSize="20dp" />
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/showDanger"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="20dp" />
+
+                    <EditText
+                        android:id="@+id/danger"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:inputType="number"
+                        android:text="@string/NA"
+                        android:textSize="18dp" />
+                </LinearLayout>
 
             </LinearLayout>
 

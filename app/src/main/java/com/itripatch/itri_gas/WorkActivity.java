@@ -50,7 +50,7 @@ public class WorkActivity extends AppCompatActivity {
     private boolean[] isLine = {true, false, false, false, false, false, false, false, false};
     private float gasLine[] = {-5, -5, -5, -5, -5, -5, -5, -5, -5};
     private TextView deviceAddress, deviceName, sensitivity, gasRatio, min, max, range, lastTime, startTime, updateTime;
-    private TextView showNormal;
+    private TextView showNormal, showWarn, showCareful, showDanger;
     private EditText normal, warn, careful, danger;
     private JSONObject mAir;
     private SharedPreferences sp;
@@ -83,8 +83,11 @@ public class WorkActivity extends AppCompatActivity {
         normal = (EditText) findViewById(R.id.normal);
         showNormal = (TextView) findViewById(R.id.showNormal);
         warn = (EditText) findViewById(R.id.warn);
+        showWarn = (TextView) findViewById(R.id.showWarn);
         careful = (EditText) findViewById(R.id.careful);
+        showCareful = (TextView) findViewById(R.id.showCareful);
         danger = (EditText) findViewById(R.id.danger);
+        showDanger = (TextView) findViewById(R.id.showDanger);
         try {
             mAir = new JSONObject(sp.getString(mAddress, null));
             normal.setText(mAir.getInt("normal") + "");
@@ -212,6 +215,18 @@ public class WorkActivity extends AppCompatActivity {
             if (str.equals(""))
                 str = "0";
             final int normal = (int) Math.floor(mMin + mMin * Integer.parseInt(str + "") / 100.0);
+            str = warn.getText() + "";
+            if (str.equals(""))
+                str = "0";
+            final int warn = (int) Math.floor(mMin + mMin * Integer.parseInt(str + "") / 100.0);
+            str = careful.getText() + "";
+            if (str.equals(""))
+                str = "0";
+            final int careful = (int) Math.floor(mMin + mMin * Integer.parseInt(str + "") / 100.0);
+            str = danger.getText() + "";
+            if (str.equals(""))
+                str = "0";
+            final int danger = (int) Math.floor(mMin + mMin * Integer.parseInt(str + "") / 100.0);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -224,6 +239,9 @@ public class WorkActivity extends AppCompatActivity {
                     updateTime.setText(DateUtil.get_yyyyMMddHHmmssSSS(mUpdateTime));
                     gasRatio.setText(mGasRatio + " %");
                     showNormal.setText(normal + "");
+                    showWarn.setText(warn + "");
+                    showCareful.setText(careful + "");
+                    showDanger.setText(danger + "");
                     try {
                         waveformView.drawACC(gasLine[0], gasLine[1], gasLine[2], gasLine[3], gasLine[4], gasLine[5], gasLine[6], gasLine[7], gasLine[8], isLine);
                     } catch (InterruptedException e) {
@@ -319,8 +337,11 @@ public class WorkActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
+                String str = s + "";
+                if (str.equals(""))
+                    str = "0";
                 try {
-                    mAir.put("warn", Integer.parseInt(s + ""));
+                    mAir.put("warn", Integer.parseInt(str));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -341,8 +362,11 @@ public class WorkActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
+                String str = s + "";
+                if (str.equals(""))
+                    str = "0";
                 try {
-                    mAir.put("careful", Integer.parseInt(s + ""));
+                    mAir.put("careful", Integer.parseInt(str));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -363,8 +387,11 @@ public class WorkActivity extends AppCompatActivity {
             @Override
             public void onTextChanged(CharSequence s, int start,
                                       int before, int count) {
+                String str = s + "";
+                if (str.equals(""))
+                    str = "0";
                 try {
-                    mAir.put("danger", Integer.parseInt(s + ""));
+                    mAir.put("danger", Integer.parseInt(str));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
