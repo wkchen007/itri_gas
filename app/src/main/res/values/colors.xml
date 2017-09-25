@@ -8,4 +8,5 @@
     <color name="warn">#FFC000</color>
     <color name="careful">#F45F0C</color>
     <color name="danger">#FF0000</color>
+    <color name="em">#804800</color>
 </resources>

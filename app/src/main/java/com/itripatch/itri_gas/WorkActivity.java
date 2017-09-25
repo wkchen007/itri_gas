@@ -212,8 +212,11 @@ public class WorkActivity extends AppCompatActivity {
             final int mMin = mDeviceAdapter.getDevice(0).getGasMin();
             final int mMax = mDeviceAdapter.getDevice(0).getGasMax();
             final int mRange = mDeviceAdapter.getDevice(0).getGasRange();
-            int start = Integer.parseInt(setStart.getText() + "");
-            String str = normal.getText() + "";
+            String str = setStart.getText() + "";
+            if (str.equals(""))
+                str = "0";
+            int start = Integer.parseInt(str);
+            str = normal.getText() + "";
             if (str.equals(""))
                 str = "0";
             final int normal = (int) Math.floor(start + start * Integer.parseInt(str + "") / 100.0);

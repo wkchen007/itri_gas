@@ -103,8 +103,8 @@ public class DemoFragment extends Fragment {
     }
 
     public void setEm() {
-        deviceName.setTextColor(getResources().getColor(R.color.danger));
-        deviceAddress.setTextColor(getResources().getColor(R.color.danger));
+        deviceName.setTextColor(getResources().getColor(R.color.em));
+        deviceAddress.setTextColor(getResources().getColor(R.color.em));
     }
 
     public void setUnEm() {
