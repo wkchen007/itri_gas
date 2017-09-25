@@ -85,6 +85,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+                <Button
+                    android:id="@+id/reset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="35dp"
+                    android:text="Reset"
+                    android:textSize="10dp"/>
+
+                <Space
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -169,7 +179,7 @@
                         android:layout_gravity="center"
                         android:inputType="numberDecimal"
                         android:text="0"
-                        android:textSize="18dp" />
+                        android:textSize="16dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -182,7 +192,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/normal"
-                        android:textSize="24dp" />
+                        android:textSize="20dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -212,7 +222,7 @@
                         android:layout_gravity="center"
                         android:inputType="numberDecimal"
                         android:text="@string/NA"
-                        android:textSize="18dp" />
+                        android:textSize="16dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -225,7 +235,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/warn"
-                        android:textSize="24dp" />
+                        android:textSize="20dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -255,7 +265,7 @@
                         android:layout_gravity="center"
                         android:inputType="numberDecimal"
                         android:text="@string/NA"
-                        android:textSize="18dp" />
+                        android:textSize="16dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -268,7 +278,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/careful"
-                        android:textSize="24dp" />
+                        android:textSize="20dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -298,7 +308,7 @@
                         android:layout_gravity="center"
                         android:inputType="numberDecimal"
                         android:text="@string/NA"
-                        android:textSize="18dp" />
+                        android:textSize="16dp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -311,7 +321,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/danger"
-                        android:textSize="24dp" />
+                        android:textSize="20dp" />
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -341,7 +351,7 @@
                         android:layout_gravity="center"
                         android:inputType="numberDecimal"
                         android:text="@string/NA"
-                        android:textSize="18dp" />
+                        android:textSize="16dp" />
                 </LinearLayout>
 
             </LinearLayout>

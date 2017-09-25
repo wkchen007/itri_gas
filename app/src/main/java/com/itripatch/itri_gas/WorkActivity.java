@@ -18,7 +18,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -51,6 +53,7 @@ public class WorkActivity extends AppCompatActivity {
     private TextView deviceAddress, deviceName, sensitivity, gasRatio, min, max, range, lastTime, startTime, updateTime;
     private TextView showNormal, showWarn, showCareful, showDanger;
     private EditText setStart, normal, warn, careful, danger;
+    private Button reset;
     private JSONObject mAir;
     private SharedPreferences sp;
     private SharedPreferences.Editor ed;
@@ -88,6 +91,7 @@ public class WorkActivity extends AppCompatActivity {
         danger = (EditText) findViewById(R.id.danger);
         showDanger = (TextView) findViewById(R.id.showDanger);
         setStart = (EditText) findViewById(R.id.setStart);
+        reset = (Button) findViewById(R.id.reset);
         try {
             mAir = new JSONObject(sp.getString(mAddress, null));
             setStart.setText(mAir.getDouble("start") + "");
@@ -313,6 +317,15 @@ public class WorkActivity extends AppCompatActivity {
     }
 
     private void ed_change() {
+        reset.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String str = sensitivity.getText() + "";
+                if (str.equals(""))
+                    str = "0";
+                setStart.setText(str);
+            }
+        });
         setStart.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start,
