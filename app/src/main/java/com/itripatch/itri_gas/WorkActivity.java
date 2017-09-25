@@ -90,11 +90,11 @@ public class WorkActivity extends AppCompatActivity {
         setStart = (EditText) findViewById(R.id.setStart);
         try {
             mAir = new JSONObject(sp.getString(mAddress, null));
-            setStart.setText(mAir.getInt("start") + "");
-            normal.setText(mAir.getInt("normal") + "");
-            warn.setText(mAir.getInt("warn") + "");
-            careful.setText(mAir.getInt("careful") + "");
-            danger.setText(mAir.getInt("danger") + "");
+            setStart.setText(mAir.getDouble("start") + "");
+            normal.setText(mAir.getDouble("normal") + "");
+            warn.setText(mAir.getDouble("warn") + "");
+            careful.setText(mAir.getDouble("careful") + "");
+            danger.setText(mAir.getDouble("danger") + "");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -215,23 +215,23 @@ public class WorkActivity extends AppCompatActivity {
             String str = setStart.getText() + "";
             if (str.equals(""))
                 str = "0";
-            int start = Integer.parseInt(str);
+            double start = Double.parseDouble(str);
             str = normal.getText() + "";
             if (str.equals(""))
                 str = "0";
-            final int normal = (int) Math.floor(start + start * Integer.parseInt(str + "") / 100.0);
+            final int normal = (int) Math.floor(start + start * Double.parseDouble(str + "") / 100.0);
             str = warn.getText() + "";
             if (str.equals(""))
                 str = "0";
-            final int warn = (int) Math.floor(start + start * Integer.parseInt(str + "") / 100.0);
+            final int warn = (int) Math.floor(start + start * Double.parseDouble(str + "") / 100.0);
             str = careful.getText() + "";
             if (str.equals(""))
                 str = "0";
-            final int careful = (int) Math.floor(start + start * Integer.parseInt(str + "") / 100.0);
+            final int careful = (int) Math.floor(start + start * Double.parseDouble(str + "") / 100.0);
             str = danger.getText() + "";
             if (str.equals(""))
                 str = "0";
-            final int danger = (int) Math.floor(start + start * Integer.parseInt(str + "") / 100.0);
+            final int danger = (int) Math.floor(start + start * Double.parseDouble(str + "") / 100.0);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -321,7 +321,7 @@ public class WorkActivity extends AppCompatActivity {
                 if (str.equals(""))
                     str = "0";
                 try {
-                    mAir.put("start", Integer.parseInt(str));
+                    mAir.put("start", Double.parseDouble(str));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -346,7 +346,7 @@ public class WorkActivity extends AppCompatActivity {
                 if (str.equals(""))
                     str = "0";
                 try {
-                    mAir.put("normal", Integer.parseInt(str));
+                    mAir.put("normal", Double.parseDouble(str));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -371,7 +371,7 @@ public class WorkActivity extends AppCompatActivity {
                 if (str.equals(""))
                     str = "0";
                 try {
-                    mAir.put("warn", Integer.parseInt(str));
+                    mAir.put("warn", Double.parseDouble(str));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -396,7 +396,7 @@ public class WorkActivity extends AppCompatActivity {
                 if (str.equals(""))
                     str = "0";
                 try {
-                    mAir.put("careful", Integer.parseInt(str));
+                    mAir.put("careful", Double.parseDouble(str));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -421,7 +421,7 @@ public class WorkActivity extends AppCompatActivity {
                 if (str.equals(""))
                     str = "0";
                 try {
-                    mAir.put("danger", Integer.parseInt(str));
+                    mAir.put("danger", Double.parseDouble(str));
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

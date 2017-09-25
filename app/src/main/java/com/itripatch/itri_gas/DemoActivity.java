@@ -250,7 +250,7 @@ public class DemoActivity extends AppCompatActivity {
                     else {
                         ed = sp.edit();
                         try {
-                            airConfig = "{\"start\":0,\"normal\":10,\"warn\":20,\"careful\":30,\"danger\":40}";
+                            airConfig = "{\"start\":1500,\"normal\":1,\"warn\":2,\"careful\":3,\"danger\":4}";
                             ed.putString(mAddress, new JSONObject(airConfig).toString());
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -359,11 +359,11 @@ public class DemoActivity extends AppCompatActivity {
             final View curView = getLayoutInflater().inflate(R.layout.activity_demo, null);
             TextView alarmMsg = (TextView) alarmPopupView.findViewById(R.id.alarm_msg);
             alarmMsg.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.flash_leave_now));  //Start Animation
-            alarmPopupWindow = new PopupWindow(alarmPopupView, 820, 300, true);
+            alarmPopupWindow = new PopupWindow(alarmPopupView, 820, 150, true);
             alarmPopupWindow.setTouchable(false);
             alarmPopupWindow.setOutsideTouchable(false);
             alarmPopupWindow.setAnimationStyle(R.style.slow_Display_Window);
-            alarmPopupWindow.showAtLocation(curView, Gravity.CENTER, 650, -80);
+            alarmPopupWindow.showAtLocation(curView, Gravity.CENTER, 0, 100);
             //Play Sound
             setVolumeControlStream(AudioManager.STREAM_MUSIC);
             mp = MediaPlayer.create(DemoActivity.this, R.raw.police3);

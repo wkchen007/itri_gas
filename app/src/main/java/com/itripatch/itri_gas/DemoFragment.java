@@ -27,7 +27,7 @@ public class DemoFragment extends Fragment {
 
     private String mName, mAddress;
     private JSONObject mAir;
-    private int mStart,mNormal, mWarn, mCareful, mDanger;
+    private double mStart,mNormal, mWarn, mCareful, mDanger;
     private boolean acCreated = false;
     private RelativeLayout relativeLayout;
     private ImageView imageView;
@@ -56,11 +56,11 @@ public class DemoFragment extends Fragment {
             mAddress = getArguments().getString(ARG_ADDRESS);
             try {
                 mAir = new JSONObject(getArguments().getString(ARG_AIR));
-                mStart = mAir.getInt("start");
-                mNormal = mAir.getInt("normal");
-                mWarn = mAir.getInt("warn");
-                mCareful = mAir.getInt("careful");
-                mDanger = mAir.getInt("danger");
+                mStart = mAir.getDouble("start");
+                mNormal = mAir.getDouble("normal");
+                mWarn = mAir.getDouble("warn");
+                mCareful = mAir.getDouble("careful");
+                mDanger = mAir.getDouble("danger");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -115,11 +115,11 @@ public class DemoFragment extends Fragment {
     public void setAir(String air) {
         try {
             mAir = new JSONObject(air);
-            mStart = mAir.getInt("start");
-            mNormal = mAir.getInt("normal");
-            mWarn = mAir.getInt("warn");
-            mCareful = mAir.getInt("careful");
-            mDanger = mAir.getInt("danger");
+            mStart = mAir.getDouble("start");
+            mNormal = mAir.getDouble("normal");
+            mWarn = mAir.getDouble("warn");
+            mCareful = mAir.getDouble("careful");
+            mDanger = mAir.getDouble("danger");
         } catch (JSONException e) {
             e.printStackTrace();
         }

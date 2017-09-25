@@ -164,10 +164,10 @@
 
                     <EditText
                         android:id="@+id/setStart"
-                        android:layout_width="50dp"
+                        android:layout_width="70dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:text="0"
                         android:textSize="18dp" />
                 </LinearLayout>
@@ -175,7 +175,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="10dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -195,7 +195,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="10dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -210,7 +210,7 @@
                         android:layout_width="50dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:text="@string/NA"
                         android:textSize="18dp" />
                 </LinearLayout>
@@ -218,7 +218,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="10dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -238,7 +238,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="10dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -253,7 +253,7 @@
                         android:layout_width="50dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:text="@string/NA"
                         android:textSize="18dp" />
                 </LinearLayout>
@@ -261,7 +261,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="10dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -281,7 +281,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="10dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -296,7 +296,7 @@
                         android:layout_width="50dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:text="@string/NA"
                         android:textSize="18dp" />
                 </LinearLayout>
@@ -304,7 +304,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="10dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -324,7 +324,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="20dp"
+                    android:layout_marginLeft="10dp"
                     android:orientation="vertical">
 
                     <TextView
@@ -339,7 +339,7 @@
                         android:layout_width="50dp"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:inputType="number"
+                        android:inputType="numberDecimal"
                         android:text="@string/NA"
                         android:textSize="18dp" />
                 </LinearLayout>
