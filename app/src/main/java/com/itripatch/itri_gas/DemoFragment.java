@@ -3,7 +3,6 @@ package com.itripatch.itri_gas;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,7 @@ public class DemoFragment extends Fragment {
 
     private String mName, mAddress;
     private JSONObject mAir;
-    private int mNormal, mWarn, mCareful, mDanger;
+    private int mStart,mNormal, mWarn, mCareful, mDanger;
     private boolean acCreated = false;
     private RelativeLayout relativeLayout;
     private ImageView imageView;
@@ -57,6 +56,7 @@ public class DemoFragment extends Fragment {
             mAddress = getArguments().getString(ARG_ADDRESS);
             try {
                 mAir = new JSONObject(getArguments().getString(ARG_AIR));
+                mStart = mAir.getInt("start");
                 mNormal = mAir.getInt("normal");
                 mWarn = mAir.getInt("warn");
                 mCareful = mAir.getInt("careful");
@@ -115,6 +115,7 @@ public class DemoFragment extends Fragment {
     public void setAir(String air) {
         try {
             mAir = new JSONObject(air);
+            mStart = mAir.getInt("start");
             mNormal = mAir.getInt("normal");
             mWarn = mAir.getInt("warn");
             mCareful = mAir.getInt("careful");
@@ -128,10 +129,10 @@ public class DemoFragment extends Fragment {
         battery.setText(bat + " %");
         temperature.setText(temp + "");
         humidity.setText(hum + "");
-        int normal = (int) Math.floor(gasMin + gasMin * mNormal / 100.0);
-        int warn = (int) Math.floor(gasMin + gasMin * mWarn / 100.0);
-        int careful = (int) Math.floor(gasMin + gasMin * mCareful / 100.0);
-        int danger = (int) Math.floor(gasMin + gasMin * mDanger / 100.0);
+        int normal = (int) Math.floor(mStart + mStart * mNormal / 100.0);
+        int warn = (int) Math.floor(mStart + mStart * mWarn / 100.0);
+        int careful = (int) Math.floor(mStart + mStart * mCareful / 100.0);
+        int danger = (int) Math.floor(mStart + mStart * mDanger / 100.0);
         if (gas < normal) {
             airStatus.setText(R.string.normal);
             relativeLayout.setBackgroundColor(getResources().getColor(R.color.normal));

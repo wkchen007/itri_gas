@@ -16,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.Window;
@@ -51,7 +50,7 @@ public class WorkActivity extends AppCompatActivity {
     private float gasLine[] = {-5, -5, -5, -5, -5, -5, -5, -5, -5};
     private TextView deviceAddress, deviceName, sensitivity, gasRatio, min, max, range, lastTime, startTime, updateTime;
     private TextView showNormal, showWarn, showCareful, showDanger;
-    private EditText normal, warn, careful, danger;
+    private EditText setStart, normal, warn, careful, danger;
     private JSONObject mAir;
     private SharedPreferences sp;
     private SharedPreferences.Editor ed;
@@ -88,8 +87,10 @@ public class WorkActivity extends AppCompatActivity {
         showCareful = (TextView) findViewById(R.id.showCareful);
         danger = (EditText) findViewById(R.id.danger);
         showDanger = (TextView) findViewById(R.id.showDanger);
+        setStart = (EditText) findViewById(R.id.setStart);
         try {
             mAir = new JSONObject(sp.getString(mAddress, null));
+            setStart.setText(mAir.getInt("start") + "");
             normal.setText(mAir.getInt("normal") + "");
             warn.setText(mAir.getInt("warn") + "");
             careful.setText(mAir.getInt("careful") + "");
@@ -211,22 +212,23 @@ public class WorkActivity extends AppCompatActivity {
             final int mMin = mDeviceAdapter.getDevice(0).getGasMin();
             final int mMax = mDeviceAdapter.getDevice(0).getGasMax();
             final int mRange = mDeviceAdapter.getDevice(0).getGasRange();
+            int start = Integer.parseInt(setStart.getText() + "");
             String str = normal.getText() + "";
             if (str.equals(""))
                 str = "0";
-            final int normal = (int) Math.floor(mMin + mMin * Integer.parseInt(str + "") / 100.0);
+            final int normal = (int) Math.floor(start + start * Integer.parseInt(str + "") / 100.0);
             str = warn.getText() + "";
             if (str.equals(""))
                 str = "0";
-            final int warn = (int) Math.floor(mMin + mMin * Integer.parseInt(str + "") / 100.0);
+            final int warn = (int) Math.floor(start + start * Integer.parseInt(str + "") / 100.0);
             str = careful.getText() + "";
             if (str.equals(""))
                 str = "0";
-            final int careful = (int) Math.floor(mMin + mMin * Integer.parseInt(str + "") / 100.0);
+            final int careful = (int) Math.floor(start + start * Integer.parseInt(str + "") / 100.0);
             str = danger.getText() + "";
             if (str.equals(""))
                 str = "0";
-            final int danger = (int) Math.floor(mMin + mMin * Integer.parseInt(str + "") / 100.0);
+            final int danger = (int) Math.floor(start + start * Integer.parseInt(str + "") / 100.0);
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -308,6 +310,31 @@ public class WorkActivity extends AppCompatActivity {
     }
 
     private void ed_change() {
+        setStart.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                String str = s + "";
+                if (str.equals(""))
+                    str = "0";
+                try {
+                    mAir.put("start", Integer.parseInt(str));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                ed = sp.edit();
+                ed.putString(mAddress, mAir.toString());
+                ed.commit();
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
         normal.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start,
