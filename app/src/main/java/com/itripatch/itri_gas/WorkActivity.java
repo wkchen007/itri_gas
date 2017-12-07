@@ -10,12 +10,15 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.SharedPreferences;
+import android.media.MediaScannerConnection;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,7 +36,13 @@ import com.itripatch.util.ScannedDevice;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -57,7 +66,13 @@ public class WorkActivity extends AppCompatActivity {
     private JSONObject mAir;
     private SharedPreferences sp;
     private SharedPreferences.Editor ed;
-
+    //儲存檔案
+    private Button saveFile;
+    private TextView saveTime;
+    //private ArrayList<String> saveData = null;
+    private boolean startSave = false;
+    private long mSaveTime;
+    private File myFile;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,6 +118,48 @@ public class WorkActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         ed_change();
+        saveTime = (TextView) findViewById(R.id.saveTime);
+        saveFile = (Button) findViewById(R.id.saveFile);
+        saveFile.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (saveFile.getText().equals("Record")) {
+                    String fileName = ((EditText) findViewById(R.id.fileName)).getText().toString();
+                    myFile = new File(Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv");
+                    if (myFile.exists()) {
+                        startSave = false;
+                        myFile = null;
+                        Toast.makeText(getApplicationContext(), fileName + " 檔案已經存在", Toast.LENGTH_SHORT).show();
+                    } else {
+                        File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/Log");
+                        // ----如要在SD卡中建立數據庫文件，先做如下的判斷和建立相對應的目錄和文件----
+                        if (!dir.exists()) { // 判斷目錄是否存在
+                            dir.mkdirs(); // 建立目錄
+                        } else {
+                        }
+                        try {
+                            myFile.createNewFile();
+                            FileOutputStream fOut = new FileOutputStream(myFile);
+                            OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut, "UTF-8");
+                            String title = mDeviceAdapter.getDevice(0).getDisplayName() + "," + mDeviceAdapter.getDevice(0).getDevice().getAddress() + "\n" + "Last Updated,ADC,Min,Max,Range,Temperature,Humidity,Power";
+                            myOutWriter.write(title + "\n");
+                            myOutWriter.close();
+                            fOut.close();
+                            MediaScannerConnection.scanFile(getApplicationContext(), new String[]{Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv"}, null, null);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        startSave = true;
+                        mSaveTime = 0;
+                        saveFile.setText("Stop");
+                    }
+                } else {
+                    startSave = false;
+                    saveFile.setText("Record");
+                }
+            }
+        });
     }
 
     @Override
@@ -197,8 +254,9 @@ public class WorkActivity extends AppCompatActivity {
                         deviceAddress.setText(mDeviceAdapter.getDevice(0).getDevice().getAddress());
                     }
                 });
-            } else
+            } else {
                 updateUI(newDeivce, newRssi, newScanRecord);
+            }
         }
     };
 
@@ -258,6 +316,34 @@ public class WorkActivity extends AppCompatActivity {
                     }
                 }
             });
+            long now = System.currentTimeMillis();
+            if (startSave && (now - mSaveTime) >= 1000) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(DateUtil.get_yyyyMMddHHmmss(mUpdateTime)).append(",");
+                sb.append(g).append(",");
+                sb.append(mMin).append(",");
+                sb.append(mMax).append(",");
+                sb.append(mRange).append(",");
+                sb.append(mDeviceAdapter.getDevice(0).getTemperature()).append(",");
+                sb.append(mDeviceAdapter.getDevice(0).getHumidity()).append(",");
+                sb.append(mDeviceAdapter.getDevice(0).getPower());
+                try {
+                    FileOutputStream fOut = new FileOutputStream(myFile, true);
+                    OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut, "UTF-8");
+                    myOutWriter.write(sb.toString() + "\n");
+                    myOutWriter.close();
+                    fOut.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                mSaveTime = now;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        saveTime.setText(DateUtil.get_yyyyMMddHHmmss(mSaveTime));
+                    }
+                });
+            }
         }
     }
 

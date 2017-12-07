@@ -99,7 +99,9 @@ public class DemoActivity extends AppCompatActivity {
                     .build();
             filters = new ArrayList<ScanFilter>();
             ScanFilter filter = new ScanFilter.Builder().setDeviceName("itri gas sensor 1.1").build();
+            ScanFilter filter2 = new ScanFilter.Builder().setDeviceName("itri gas sensor 2.0").build();
             filters.add(filter);
+            filters.add(filter2);
             startScan();
         }
     }
@@ -114,7 +116,9 @@ public class DemoActivity extends AppCompatActivity {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                 mStringList.add(Manifest.permission.ACCESS_COARSE_LOCATION);
             }
-
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                mStringList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+            }
             if (mStringList.size() != 0) {
                 String[] mStringArray = new String[mStringList.size()];
                 mStringArray = mStringList.toArray(mStringArray);

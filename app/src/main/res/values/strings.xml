@@ -15,7 +15,9 @@
     <string name="danger">危險</string>
     <string name="use_time">使用時間</string>
     <string name="start_time">開始時間</string>
+    <string name="save_time">儲存時間</string>
     <string name="update_time">結束時間</string>
+    <string name="file_name">儲存檔案</string>
     <string name="NA">N/A</string>
     <string name="sensitivity">Sensitivity</string>
     <string name="min">Min</string>

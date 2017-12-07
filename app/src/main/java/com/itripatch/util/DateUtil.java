@@ -24,12 +24,21 @@ import java.util.Locale;
  * Date Util
  */
 public class DateUtil {
-    private static final ThreadLocal<SimpleDateFormat> mFormater = new ThreadLocal<SimpleDateFormat>() {
+    private static final ThreadLocal<SimpleDateFormat> mFormater1 = new ThreadLocal<SimpleDateFormat>() {
         private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss.SSS";
 
         @Override
         protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat(DATE_PATTERN, Locale.ENGLISH);
+            return new SimpleDateFormat(DATE_PATTERN);
+        }
+    };
+
+    private static final ThreadLocal<SimpleDateFormat> mFormater2 = new ThreadLocal<SimpleDateFormat>() {
+        private static final String DATE_PATTERN = "yyyy-MM-dd HH:mm:ss";
+
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat(DATE_PATTERN);
         }
     };
 
@@ -38,7 +47,7 @@ public class DateUtil {
 
         @Override
         protected SimpleDateFormat initialValue() {
-            return new SimpleDateFormat(FILENAME_PATTERN, Locale.ENGLISH);
+            return new SimpleDateFormat(FILENAME_PATTERN);
         }
     };
 
@@ -51,7 +60,14 @@ public class DateUtil {
      * get "yyyy-MM-dd HH:mm:ss.SSS" String
      */
     public static String get_yyyyMMddHHmmssSSS(long ms) {
-        return mFormater.get().format(new Date(ms));
+        return mFormater1.get().format(new Date(ms));
+    }
+
+    /**
+     * get "yyyy-MM-dd HH:mm:ss" String
+     */
+    public static String get_yyyyMMddHHmmss(long ms) {
+        return mFormater2.get().format(new Date(ms));
     }
 
     /**
