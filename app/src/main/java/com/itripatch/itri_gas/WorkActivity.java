@@ -44,6 +44,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class WorkActivity extends AppCompatActivity {
@@ -178,6 +180,7 @@ public class WorkActivity extends AppCompatActivity {
             ScanFilter filter = new ScanFilter.Builder().setDeviceAddress(mAddress).build();
             filters.add(filter);
             startScan();
+            startReadTimer();
         }
     }
 
@@ -402,6 +405,43 @@ public class WorkActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
 
+    private Boolean startReadTimerOn = false;
+    private TimerTask readtask;
+    private Timer readtimer;
+
+    public void startReadTimer() {
+        if (readtimer == null) {
+            readtimer = new Timer();
+        }
+        if (readtask == null) {
+            readtask = new TimerTask() {
+                public void run() {
+                    mLEScanner.stopScan(mScanCallback);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    mLEScanner.startScan(filters, settings, mScanCallback);
+                }
+            };
+        }
+        if (readtimer != null && readtask != null && !startReadTimerOn) {
+            readtimer.schedule(readtask, 1, 1500000);   //Period must = 25 min to refresh bluetooth connect
+            startReadTimerOn = true;
+        }
+    }
+    public void stopReadTimer() {
+        if (readtimer != null) {
+            readtimer.cancel();
+            readtimer = null;
+        }
+        if (readtask != null) {
+            readtask.cancel();
+            readtask = null;
+        }
+        startReadTimerOn = false;
+    }
     private void ed_change() {
         reset.setOnClickListener(new Button.OnClickListener() {
             @Override
