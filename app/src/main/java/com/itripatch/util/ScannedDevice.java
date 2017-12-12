@@ -177,7 +177,15 @@ public class ScannedDevice {
 
     public void setTemperature() {
         String hexString = getScanRecordHexString();
-        double temperature = Integer.parseInt(hexString.substring(18, 26), 16) / 100.0;
+        double temperature = 0;
+        //溫度轉換，介於-40度到85度
+        if (hexString.substring(18, 19).equals("F")){
+            String bin = Long.toString(Long.parseLong(hexString.substring(18, 26), 16), 2);
+            String binCompl = bin.replace('0', 'X').replace('1', '0').replace('X', '1');
+            temperature = ((Long.parseLong(binCompl, 2) + 1) * -1) / 100.0;
+        }
+        else
+            temperature = Long.parseLong(hexString.substring(18, 26), 16) / 100.0;
         mTemperature = Math.floor(temperature * 100) / 100.0;
     }
 
