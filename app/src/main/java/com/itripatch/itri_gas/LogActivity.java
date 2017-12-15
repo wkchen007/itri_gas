@@ -11,28 +11,30 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.MediaScannerConnection;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.itripatch.util.BleUtil;
 import com.itripatch.util.ScannedDevice;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,8 +49,14 @@ public class LogActivity extends AppCompatActivity {
     private ScanSettings settings;
     private List<ScanFilter> filters;
     private Toolbar toolbar;
-    private SharedPreferences sp;
-    private SharedPreferences.Editor ed;
+    private int size = 5;
+    private TextView[] deviceAddress = new TextView[size], sensitivity = new TextView[size],
+            temperature = new TextView[size], humidity = new TextView[size], saveTime = new TextView[size];
+    private EditText[] fn = new EditText[size];
+    //儲存檔案
+    private Button saveFile;
+    private boolean startSave = false;
+    private File[] myFile = new File[size];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,8 +67,85 @@ public class LogActivity extends AppCompatActivity {
         toolbar.setTitle("");
         toolbar.setLogo(R.drawable.itri);
         setSupportActionBar(toolbar);
+        deviceAddress[0] = (TextView) findViewById(R.id.deviceAddress1);
+        deviceAddress[1] = (TextView) findViewById(R.id.deviceAddress2);
+        deviceAddress[2] = (TextView) findViewById(R.id.deviceAddress3);
+        deviceAddress[3] = (TextView) findViewById(R.id.deviceAddress4);
+        deviceAddress[4] = (TextView) findViewById(R.id.deviceAddress5);
+        sensitivity[0] = (TextView) findViewById(R.id.sensitivity1);
+        sensitivity[1] = (TextView) findViewById(R.id.sensitivity2);
+        sensitivity[2] = (TextView) findViewById(R.id.sensitivity3);
+        sensitivity[3] = (TextView) findViewById(R.id.sensitivity4);
+        sensitivity[4] = (TextView) findViewById(R.id.sensitivity5);
+        temperature[0] = (TextView) findViewById(R.id.temperature1);
+        temperature[1] = (TextView) findViewById(R.id.temperature2);
+        temperature[2] = (TextView) findViewById(R.id.temperature3);
+        temperature[3] = (TextView) findViewById(R.id.temperature4);
+        temperature[4] = (TextView) findViewById(R.id.temperature5);
+        humidity[0] = (TextView) findViewById(R.id.humidity1);
+        humidity[1] = (TextView) findViewById(R.id.humidity2);
+        humidity[2] = (TextView) findViewById(R.id.humidity3);
+        humidity[3] = (TextView) findViewById(R.id.humidity4);
+        humidity[4] = (TextView) findViewById(R.id.humidity5);
+        fn[0] = (EditText) findViewById(R.id.fileName1);
+        fn[1] = (EditText) findViewById(R.id.fileName2);
+        fn[2] = (EditText) findViewById(R.id.fileName3);
+        fn[3] = (EditText) findViewById(R.id.fileName4);
+        fn[4] = (EditText) findViewById(R.id.fileName5);
+        saveTime[0] = (TextView) findViewById(R.id.saveTime1);
+        saveTime[1] = (TextView) findViewById(R.id.saveTime2);
+        saveTime[2] = (TextView) findViewById(R.id.saveTime3);
+        saveTime[3] = (TextView) findViewById(R.id.saveTime4);
+        saveTime[4] = (TextView) findViewById(R.id.saveTime5);
+        saveFile = (Button) findViewById(R.id.saveFile);
+        saveFile.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (saveFile.getText().equals("Record")) {
+                    for (int i = 0; i < fn.length; i++) {
+                        String fileName = fn[i].getText().toString();
+                        myFile[i] = new File(Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv");
+                        if (myFile[i].exists()) {
+                            startSave = false;
+                            myFile[i] = null;
+                            Toast.makeText(getApplicationContext(), fileName + " 檔案已經存在", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                    if (startSave) {
+                        for (int i = 0; i < fn.length; i++) {
+                            File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/Log");
+                            // ----如要在SD卡中建立數據庫文件，先做如下的判斷和建立相對應的目錄和文件----
+                            if (!dir.exists()) { // 判斷目錄是否存在
+                                dir.mkdirs(); // 建立目錄
+                            } else {
+                            }
+                            try {
+                                String fileName = fn[i].getText().toString();
+                                myFile[i].createNewFile();
+                                FileOutputStream fOut = new FileOutputStream(myFile[i]);
+                                OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut, "UTF-8");
+                                String title = mDeviceAdapter.getDevice(0).getDisplayName() + "," + mDeviceAdapter.getDevice(0).getDevice().getAddress() + "\n" + "Last Updated,ADC,Min,Max,Range,Temperature,Humidity,Power";
+                                myOutWriter.write(title + "\n");
+                                myOutWriter.close();
+                                fOut.close();
+                                MediaScannerConnection.scanFile(getApplicationContext(), new String[]{Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv"}, null, null);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+
+                            startSave = true;
+                            mSaveTime = 0;
+                            saveFile.setText("Stop");
+                        }
+                    }
+                } else {
+                    startSave = false;
+                    saveFile.setText("Record");
+                }
+            }
+        });
+
         init();
-        sp = this.getSharedPreferences("sensorList", MODE_PRIVATE);
     }
 
     @Override
@@ -199,19 +284,12 @@ public class LogActivity extends AppCompatActivity {
                     mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
                     final String mName = newDeivce.getName();
                     final String mAddress = newDeivce.getAddress();
-                    String airConfig = null;
-                    if (sp.getString(mAddress, null) != null)
-                        airConfig = sp.getString(mAddress, null);
-                    else {
-                        ed = sp.edit();
-                        try {
-                            airConfig = "{\"start\":1500,\"normal\":1,\"warn\":2,\"careful\":3,\"danger\":4}";
-                            ed.putString(mAddress, new JSONObject(airConfig).toString());
-                        } catch (JSONException e) {
-                            e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            deviceAddress[mDeviceAdapter.getSize() - 1].setText(mAddress);
                         }
-                        ed.commit();
-                    }
+                    });
                 }
             } else
                 updateUI(newDeivce, newRssi, newScanRecord);
@@ -223,12 +301,19 @@ public class LogActivity extends AppCompatActivity {
         String summary = mDeviceAdapter.update(newDeivce, newRssi, newScanRecord);
         if (summary != null) {
             String data[] = summary.split(",");
-            final String battery[] = data[0].split(";");
-            final String gasEm = data[1];
             final String gas[] = data[2].split(";");
             final String temp[] = data[3].split(";");
             final String hum[] = data[4].split(";");
-            final String gasMin[] = data[5].split(";");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
+                        sensitivity[i].setText(Integer.parseInt(gas[i]) + "");
+                        temperature[i].setText(Double.parseDouble(temp[i]) + " 度");
+                        humidity[i].setText(Double.parseDouble(hum[i]) + " %");
+                    }
+                }
+            });
         }
     }
 
