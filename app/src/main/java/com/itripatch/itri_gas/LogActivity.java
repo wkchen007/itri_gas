@@ -13,25 +13,17 @@ import android.bluetooth.le.ScanSettings;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
-import android.view.WindowManager;
-import android.view.animation.AnimationUtils;
-import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class DemoActivity extends AppCompatActivity {
+public class LogActivity extends AppCompatActivity {
     private BluetoothAdapter mBTAdapter;
     private DeviceAdapter mDeviceAdapter;
     private static final int MY_PERMISSIONS_REQUEST = 1;
@@ -54,15 +46,7 @@ public class DemoActivity extends AppCompatActivity {
     private BluetoothLeScanner mLEScanner;
     private ScanSettings settings;
     private List<ScanFilter> filters;
-    private View alarmPopupView;
-    private Boolean alarmPopupWindowShow = false;
-    private PopupWindow alarmPopupWindow;
-    private Boolean emStart = false;
-    private MediaPlayer mp;
     private Toolbar toolbar;
-    private DemoFragment[] demo = new DemoFragment[5];
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
     private SharedPreferences sp;
     private SharedPreferences.Editor ed;
 
@@ -70,18 +54,12 @@ public class DemoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setContentView(R.layout.activity_demo);
+        setContentView(R.layout.activity_log);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         toolbar.setLogo(R.drawable.itri);
         setSupportActionBar(toolbar);
         init();
-        mSectionsPagerAdapter = new SectionsPagerAdapter(
-                getSupportFragmentManager());
-        // 設定 ViewPager 和 Pager Adapter.
-        mViewPager = (ViewPager) findViewById(R.id.viewPager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        alarmPopupView = getLayoutInflater().inflate(R.layout.alarm_button, null);
         sp = this.getSharedPreferences("sensorList", MODE_PRIVATE);
     }
 
@@ -191,49 +169,15 @@ public class DemoActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if (mp != null) {
-            mp.pause();
-            mp.setLooping(false); //停止音樂播放
-            mp = null;
-        }
         super.onDestroy();
     }
 
     public void tabWork(View v) {
         stopScan();
         final String address = (String) v.getTag();
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
-                    if (demo[i].getAcCreated())
-                        demo[i].setNA();
-                }
-            }
-        });
         Intent i = new Intent(this, WorkActivity.class);
         WorkActivity.mAddress = address;
         startActivityForResult(i, GO_WORK);
-    }
-
-    public void tabLog(View v) {
-        stopScan();
-        Intent i = new Intent(this, LogActivity.class);
-        startActivity(i);
-        finish();
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case GO_WORK:
-                for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
-                    if (mDeviceAdapter.getDevice(i).getDevice().getAddress().equals(WorkActivity.mAddress))
-                        demo[i].setAir(sp.getString(WorkActivity.mAddress, null));
-                }
-                startScan();
-                break;
-        }
     }
 
     public void delayMS(int delayValue) {
@@ -268,14 +212,6 @@ public class DemoActivity extends AppCompatActivity {
                         }
                         ed.commit();
                     }
-                    final String finalAirConfig = airConfig;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            demo[mDeviceAdapter.getSize() - 1] = DemoFragment.newInstance(mName, mAddress, finalAirConfig);
-                            mSectionsPagerAdapter.notifyDataSetChanged();
-                        }
-                    });
                 }
             } else
                 updateUI(newDeivce, newRssi, newScanRecord);
@@ -293,33 +229,6 @@ public class DemoActivity extends AppCompatActivity {
             final String temp[] = data[3].split(";");
             final String hum[] = data[4].split(";");
             final String gasMin[] = data[5].split(";");
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    String demoGasEm[] = gasEm.split(";");
-                    for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
-                        if (demo[i].getAcCreated()) {
-                            if (demoGasEm[i].equals("true"))
-                                demo[i].setEm();
-                            else
-                                demo[i].setUnEm();
-                            demo[i].update(Integer.parseInt(battery[i]), Integer.parseInt(gas[i]), Integer.parseInt(gasMin[i]), Double.parseDouble(temp[i]), Double.parseDouble(hum[i]));
-                            mSectionsPagerAdapter.notifyDataSetChanged();
-                        }
-                    }
-                    if (gasEm.contains("true")) {
-                        if (!emStart) {
-                            alarmButtonClick();
-                            emStart = true;
-                        }
-                    } else {
-                        if (emStart) {
-                            alarmButtonCancel();
-                            emStart = false;
-                        }
-                    }
-                }
-            });
         }
     }
 
@@ -359,72 +268,5 @@ public class DemoActivity extends AppCompatActivity {
         mIsScanning = false;
         setProgressBarIndeterminateVisibility(false);
         invalidateOptionsMenu();
-    }
-
-    private void alarmButtonClick() {
-        if (!alarmPopupWindowShow) {
-            //讓螢幕背景的亮度只有50%
-            WindowManager.LayoutParams params = getWindow().getAttributes();
-            params.alpha = 0.5f;
-            getWindow().setAttributes(params);
-            final View curView = getLayoutInflater().inflate(R.layout.activity_demo, null);
-            TextView alarmMsg = (TextView) alarmPopupView.findViewById(R.id.alarm_msg);
-            alarmMsg.setAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.flash_leave_now));  //Start Animation
-            alarmPopupWindow = new PopupWindow(alarmPopupView, 820, 150, true);
-            alarmPopupWindow.setTouchable(false);
-            alarmPopupWindow.setOutsideTouchable(false);
-            alarmPopupWindow.setAnimationStyle(R.style.slow_Display_Window);
-            alarmPopupWindow.showAtLocation(curView, Gravity.CENTER, 0, 100);
-            //Play Sound
-            setVolumeControlStream(AudioManager.STREAM_MUSIC);
-            mp = MediaPlayer.create(DemoActivity.this, R.raw.police3);
-            mp.setLooping(true);
-            mp.seekTo(0);
-            mp.start();
-            alarmPopupWindowShow = true;
-        }
-        alarmPopupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                alarmPopupWindowShow = false;
-                alarmPopupWindow.dismiss();
-                //讓螢幕背景回復到原先的亮度
-                WindowManager.LayoutParams params = getWindow().getAttributes();
-                params.alpha = 1.0f;
-                getWindow().setAttributes(params);
-            }
-        });
-    }
-
-    private void alarmButtonCancel() {
-        if (alarmPopupWindowShow) {
-            alarmPopupWindow.dismiss();
-            //讓螢幕背景回復到原先的亮度
-            WindowManager.LayoutParams params = getWindow().getAttributes();
-            params.alpha = 1.0f;
-            getWindow().setAttributes(params);
-
-            mp.pause();
-            mp.setLooping(false); //停止音樂播放
-            alarmPopupWindowShow = false;
-        }
-    }
-
-    private class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // 根據目前tab標籤頁的位置，傳回對應的fragment物件
-            return demo[position];
-        }
-
-        @Override
-        public int getCount() {
-            return mDeviceAdapter.getSize();
-        }
     }
 }
