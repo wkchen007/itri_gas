@@ -30,6 +30,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.itripatch.util.BleUtil;
+import com.itripatch.util.DateUtil;
 import com.itripatch.util.ScannedDevice;
 
 import java.io.File;
@@ -37,6 +38,8 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class LogActivity extends AppCompatActivity {
@@ -56,7 +59,12 @@ public class LogActivity extends AppCompatActivity {
     //儲存檔案
     private Button saveFile;
     private boolean startSave = false;
-    private File[] myFile = new File[size];
+    private long mSaveTime;
+    private File[] myFile;
+    //計時重啟掃描
+    private Boolean startReadTimerOn = false;
+    private TimerTask readtask;
+    private Timer readtimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,17 +110,19 @@ public class LogActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (saveFile.getText().equals("Record")) {
-                    for (int i = 0; i < fn.length; i++) {
+                    myFile = new File[size];
+                    boolean fnCheck = true;
+                    for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
                         String fileName = fn[i].getText().toString();
                         myFile[i] = new File(Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv");
                         if (myFile[i].exists()) {
-                            startSave = false;
+                            fnCheck = false;
                             myFile[i] = null;
                             Toast.makeText(getApplicationContext(), fileName + " 檔案已經存在", Toast.LENGTH_SHORT).show();
                         }
                     }
-                    if (startSave) {
-                        for (int i = 0; i < fn.length; i++) {
+                    if (fnCheck) {
+                        for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
                             File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/Log");
                             // ----如要在SD卡中建立數據庫文件，先做如下的判斷和建立相對應的目錄和文件----
                             if (!dir.exists()) { // 判斷目錄是否存在
@@ -124,7 +134,7 @@ public class LogActivity extends AppCompatActivity {
                                 myFile[i].createNewFile();
                                 FileOutputStream fOut = new FileOutputStream(myFile[i]);
                                 OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut, "UTF-8");
-                                String title = mDeviceAdapter.getDevice(0).getDisplayName() + "," + mDeviceAdapter.getDevice(0).getDevice().getAddress() + "\n" + "Last Updated,ADC,Min,Max,Range,Temperature,Humidity,Power";
+                                String title = mDeviceAdapter.getDevice(i).getDisplayName() + "," + mDeviceAdapter.getDevice(i).getDevice().getAddress() + "\n" + "Last Updated,ADC,Min,Max,Range,Temperature,Humidity,Power";
                                 myOutWriter.write(title + "\n");
                                 myOutWriter.close();
                                 fOut.close();
@@ -132,14 +142,18 @@ public class LogActivity extends AppCompatActivity {
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
-
-                            startSave = true;
-                            mSaveTime = 0;
-                            saveFile.setText("Stop");
                         }
+                        startSave = true;
+                        mSaveTime = 0;
+                        saveFile.setText("Stop");
                     }
                 } else {
                     startSave = false;
+                    for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
+                        String fileName = fn[i].getText().toString();
+                        MediaScannerConnection.scanFile(getApplicationContext(), new String[]{Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv"}, null, null);
+                    }
+                    myFile = null;
                     saveFile.setText("Record");
                 }
             }
@@ -166,6 +180,7 @@ public class LogActivity extends AppCompatActivity {
             filters.add(filter);
             filters.add(filter2);
             startScan();
+            startReadTimer();
         }
     }
 
@@ -254,6 +269,7 @@ public class LogActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        stopReadTimer();
         super.onDestroy();
     }
 
@@ -295,7 +311,7 @@ public class LogActivity extends AppCompatActivity {
                 updateUI(newDeivce, newRssi, newScanRecord);
         }
     };
-
+    int count = 0;
     public void updateUI(final BluetoothDevice newDeivce, final int newRssi,
                          final byte[] newScanRecord) {
         String summary = mDeviceAdapter.update(newDeivce, newRssi, newScanRecord);
@@ -304,6 +320,32 @@ public class LogActivity extends AppCompatActivity {
             final String gas[] = data[2].split(";");
             final String temp[] = data[3].split(";");
             final String hum[] = data[4].split(";");
+            long now = System.currentTimeMillis();
+            if (startSave && (now - mSaveTime) >= 1000) {
+                for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append(DateUtil.get_yyyyMMddHHmmss(mDeviceAdapter.getDevice(i).getLastUpdatedMs())).append(",");
+                    sb.append(mDeviceAdapter.getDevice(i).getGas()).append(",");
+                    sb.append(mDeviceAdapter.getDevice(i).getGasMin()).append(",");
+                    sb.append(mDeviceAdapter.getDevice(i).getGasMax()).append(",");
+                    sb.append(mDeviceAdapter.getDevice(i).getGasRange()).append(",");
+                    sb.append(mDeviceAdapter.getDevice(i).getTemperature()).append(",");
+                    sb.append(mDeviceAdapter.getDevice(i).getHumidity()).append(",");
+                    sb.append(mDeviceAdapter.getDevice(i).getPower());
+                    try {
+                        FileOutputStream fOut = new FileOutputStream(myFile[i], true);
+                        OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut, "UTF-8");
+                        myOutWriter.write(sb.toString() + "\n");
+                        myOutWriter.close();
+                        fOut.close();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                mSaveTime = now;
+                count++;
+                Log.i("TTT", "updateUI: " + count);
+            }
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -311,6 +353,8 @@ public class LogActivity extends AppCompatActivity {
                         sensitivity[i].setText(Integer.parseInt(gas[i]) + "");
                         temperature[i].setText(Double.parseDouble(temp[i]) + " 度");
                         humidity[i].setText(Double.parseDouble(hum[i]) + " %");
+                        if (startSave)
+                            saveTime[i].setText(DateUtil.get_yyyyMMddHHmmss(mSaveTime));
                     }
                 }
             });
@@ -353,5 +397,40 @@ public class LogActivity extends AppCompatActivity {
         mIsScanning = false;
         setProgressBarIndeterminateVisibility(false);
         invalidateOptionsMenu();
+    }
+
+    public void startReadTimer() {
+        if (readtimer == null) {
+            readtimer = new Timer();
+        }
+        if (readtask == null) {
+            readtask = new TimerTask() {
+                public void run() {
+                    mLEScanner.stopScan(mScanCallback);
+                    try {
+                        Thread.sleep(100);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    mLEScanner.startScan(filters, settings, mScanCallback);
+                }
+            };
+        }
+        if (readtimer != null && readtask != null && !startReadTimerOn) {
+            readtimer.schedule(readtask, 1, 1500000);   //Period must = 25 min to refresh bluetooth connect
+            startReadTimerOn = true;
+        }
+    }
+
+    public void stopReadTimer() {
+        if (readtimer != null) {
+            readtimer.cancel();
+            readtimer = null;
+        }
+        if (readtask != null) {
+            readtask.cancel();
+            readtask = null;
+        }
+        startReadTimerOn = false;
     }
 }

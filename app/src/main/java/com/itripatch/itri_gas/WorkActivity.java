@@ -18,7 +18,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,12 +36,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -71,10 +67,14 @@ public class WorkActivity extends AppCompatActivity {
     //儲存檔案
     private Button saveFile;
     private TextView saveTime;
-    //private ArrayList<String> saveData = null;
     private boolean startSave = false;
     private long mSaveTime;
     private File myFile;
+    //計時重啟掃描
+    private Boolean startReadTimerOn = false;
+    private TimerTask readtask;
+    private Timer readtimer;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,6 +158,9 @@ public class WorkActivity extends AppCompatActivity {
                     }
                 } else {
                     startSave = false;
+                    String fileName = ((EditText) findViewById(R.id.fileName)).getText().toString();
+                    MediaScannerConnection.scanFile(getApplicationContext(), new String[]{Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv"}, null, null);
+                    myFile = null;
                     saveFile.setText("Record");
                 }
             }
@@ -231,6 +234,7 @@ public class WorkActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        stopReadTimer();
         super.onDestroy();
     }
 
@@ -404,10 +408,6 @@ public class WorkActivity extends AppCompatActivity {
         setProgressBarIndeterminateVisibility(false);
         invalidateOptionsMenu();
     }
-
-    private Boolean startReadTimerOn = false;
-    private TimerTask readtask;
-    private Timer readtimer;
 
     public void startReadTimer() {
         if (readtimer == null) {
