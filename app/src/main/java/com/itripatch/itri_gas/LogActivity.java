@@ -311,7 +311,7 @@ public class LogActivity extends AppCompatActivity {
                 updateUI(newDeivce, newRssi, newScanRecord);
         }
     };
-    int count = 0;
+
     public void updateUI(final BluetoothDevice newDeivce, final int newRssi,
                          final byte[] newScanRecord) {
         String summary = mDeviceAdapter.update(newDeivce, newRssi, newScanRecord);
@@ -343,8 +343,6 @@ public class LogActivity extends AppCompatActivity {
                     }
                 }
                 mSaveTime = now;
-                count++;
-                Log.i("TTT", "updateUI: " + count);
             }
             runOnUiThread(new Runnable() {
                 @Override
