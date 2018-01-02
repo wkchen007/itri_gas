@@ -57,10 +57,10 @@ public class LogActivity extends AppCompatActivity {
             temperature = new TextView[size], humidity = new TextView[size], saveTime = new TextView[size];
     private EditText[] fn = new EditText[size];
     //儲存檔案
-    private Button saveFile;
-    private boolean startSave = false;
-    private long mSaveTime;
-    private File[] myFile;
+    private Button saveFile1, saveFile2, saveFile3, saveFile4, saveFile5;
+    private boolean startSave[] = {false, false, false, false, false};
+    private long mSaveTime[] = {0, 0, 0, 0, 0};
+    private File[] myFile = new File[size];
     //計時重啟掃描
     private Boolean startReadTimerOn = false;
     private TimerTask readtask;
@@ -105,60 +105,101 @@ public class LogActivity extends AppCompatActivity {
         saveTime[2] = (TextView) findViewById(R.id.saveTime3);
         saveTime[3] = (TextView) findViewById(R.id.saveTime4);
         saveTime[4] = (TextView) findViewById(R.id.saveTime5);
-        saveFile = (Button) findViewById(R.id.saveFile);
-        saveFile.setOnClickListener(new Button.OnClickListener() {
+        saveFile1 = (Button) findViewById(R.id.saveFile1);
+        saveFile2 = (Button) findViewById(R.id.saveFile2);
+        saveFile3 = (Button) findViewById(R.id.saveFile3);
+        saveFile4 = (Button) findViewById(R.id.saveFile4);
+        saveFile5 = (Button) findViewById(R.id.saveFile5);
+        saveFile1.setOnClickListener(new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (saveFile.getText().equals("Record")) {
-                    myFile = new File[size];
-                    boolean fnCheck = true;
-                    for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
-                        String fileName = fn[i].getText().toString();
-                        myFile[i] = new File(Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv");
-                        if (myFile[i].exists()) {
-                            fnCheck = false;
-                            myFile[i] = null;
-                            Toast.makeText(getApplicationContext(), fileName + " 檔案已經存在", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                    if (fnCheck) {
-                        for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
-                            File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/Log");
-                            // ----如要在SD卡中建立數據庫文件，先做如下的判斷和建立相對應的目錄和文件----
-                            if (!dir.exists()) { // 判斷目錄是否存在
-                                dir.mkdirs(); // 建立目錄
-                            } else {
-                            }
-                            try {
-                                String fileName = fn[i].getText().toString();
-                                myFile[i].createNewFile();
-                                FileOutputStream fOut = new FileOutputStream(myFile[i]);
-                                OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut, "UTF-8");
-                                String title = mDeviceAdapter.getDevice(i).getDisplayName() + "," + mDeviceAdapter.getDevice(i).getDevice().getAddress() + "\n" + "Last Updated,ADC,Min,Max,Range,Temperature,Humidity,Power";
-                                myOutWriter.write(title + "\n");
-                                myOutWriter.close();
-                                fOut.close();
-                                MediaScannerConnection.scanFile(getApplicationContext(), new String[]{Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv"}, null, null);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                        startSave = true;
-                        mSaveTime = 0;
-                        saveFile.setText("Stop");
+                if (saveFile1.getText().equals("Record")) {
+                    if (checkFile(0)) {
+                        startSaveFile(0);
+                        saveFile1.setText("Stop");
+                        saveFile1.setBackgroundColor(getResources().getColor(R.color.danger));
+                        fn[0].setEnabled(false);
                     }
                 } else {
-                    startSave = false;
-                    for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
-                        String fileName = fn[i].getText().toString();
-                        MediaScannerConnection.scanFile(getApplicationContext(), new String[]{Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv"}, null, null);
-                    }
-                    myFile = null;
-                    saveFile.setText("Record");
+                    stopSaveFile(0);
+                    saveFile1.setText("Record");
+                    saveFile1.setBackgroundColor(getResources().getColor(R.color.normal));
+                    fn[0].setEnabled(true);
                 }
             }
         });
-
+        saveFile2.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (saveFile2.getText().equals("Record")) {
+                    if (checkFile(1)) {
+                        startSaveFile(1);
+                        saveFile2.setText("Stop");
+                        saveFile2.setBackgroundColor(getResources().getColor(R.color.danger));
+                        fn[1].setEnabled(false);
+                    }
+                } else {
+                    stopSaveFile(1);
+                    saveFile2.setText("Record");
+                    saveFile2.setBackgroundColor(getResources().getColor(R.color.normal));
+                    fn[1].setEnabled(true);
+                }
+            }
+        });
+        saveFile3.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (saveFile3.getText().equals("Record")) {
+                    if (checkFile(2)) {
+                        startSaveFile(2);
+                        saveFile3.setText("Stop");
+                        saveFile3.setBackgroundColor(getResources().getColor(R.color.danger));
+                        fn[2].setEnabled(false);
+                    }
+                } else {
+                    stopSaveFile(2);
+                    saveFile3.setText("Record");
+                    saveFile3.setBackgroundColor(getResources().getColor(R.color.normal));
+                    fn[2].setEnabled(true);
+                }
+            }
+        });
+        saveFile4.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (saveFile4.getText().equals("Record")) {
+                    if (checkFile(3)) {
+                        startSaveFile(3);
+                        saveFile4.setText("Stop");
+                        saveFile4.setBackgroundColor(getResources().getColor(R.color.danger));
+                        fn[3].setEnabled(false);
+                    }
+                } else {
+                    stopSaveFile(3);
+                    saveFile4.setText("Record");
+                    saveFile4.setBackgroundColor(getResources().getColor(R.color.normal));
+                    fn[3].setEnabled(true);
+                }
+            }
+        });
+        saveFile5.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (saveFile5.getText().equals("Record")) {
+                    if (checkFile(4)) {
+                        startSaveFile(4);
+                        saveFile5.setText("Stop");
+                        saveFile5.setBackgroundColor(getResources().getColor(R.color.danger));
+                        fn[4].setEnabled(false);
+                    }
+                } else {
+                    stopSaveFile(4);
+                    saveFile5.setText("Record");
+                    saveFile5.setBackgroundColor(getResources().getColor(R.color.normal));
+                    fn[4].setEnabled(true);
+                }
+            }
+        });
         init();
     }
 
@@ -269,6 +310,8 @@ public class LogActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        stopSaveFile(0);stopSaveFile(1);stopSaveFile(2);
+        stopSaveFile(3);stopSaveFile(4);
         stopReadTimer();
         super.onDestroy();
     }
@@ -279,14 +322,6 @@ public class LogActivity extends AppCompatActivity {
         Intent i = new Intent(this, WorkActivity.class);
         WorkActivity.mAddress = address;
         startActivityForResult(i, GO_WORK);
-    }
-
-    public void delayMS(int delayValue) {
-        try {
-            Thread.sleep(delayValue); // do nothing for 1000 miliseconds (1 second)
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 
     private ScanCallback mScanCallback = new ScanCallback() {
@@ -321,8 +356,8 @@ public class LogActivity extends AppCompatActivity {
             final String temp[] = data[3].split(";");
             final String hum[] = data[4].split(";");
             long now = System.currentTimeMillis();
-            if (startSave && (now - mSaveTime) >= 1000) {
-                for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
+            for (int i = 0; i < mDeviceAdapter.getSize(); i++) {
+                if (startSave[i] && (now - mSaveTime[i]) >= 1000) {
                     StringBuilder sb = new StringBuilder();
                     sb.append(DateUtil.get_yyyyMMddHHmmss(mDeviceAdapter.getDevice(i).getLastUpdatedMs())).append(",");
                     sb.append(mDeviceAdapter.getDevice(i).getGas()).append(",");
@@ -341,8 +376,8 @@ public class LogActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
+                    mSaveTime[i] = now;
                 }
-                mSaveTime = now;
             }
             runOnUiThread(new Runnable() {
                 @Override
@@ -351,8 +386,8 @@ public class LogActivity extends AppCompatActivity {
                         sensitivity[i].setText(Integer.parseInt(gas[i]) + "");
                         temperature[i].setText(Double.parseDouble(temp[i]) + " 度");
                         humidity[i].setText(Double.parseDouble(hum[i]) + " %");
-                        if (startSave)
-                            saveTime[i].setText(DateUtil.get_yyyyMMddHHmmss(mSaveTime));
+                        if (startSave[i])
+                            saveTime[i].setText(DateUtil.get_yyyyMMddHHmmss(mSaveTime[i]));
                     }
                 }
             });
@@ -397,6 +432,57 @@ public class LogActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
 
+    public boolean checkFile(int index) {
+        boolean fnCheck = true;
+        String fileName = fn[index].getText().toString();
+        myFile[index] = new File(Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv");
+        if (myFile[index].exists()) {
+            fnCheck = false;
+            myFile[index] = null;
+            Toast.makeText(getApplicationContext(), fileName + " 檔案已經存在", Toast.LENGTH_SHORT).show();
+        }
+        return fnCheck;
+    }
+
+    public void startSaveFile(int index) {
+        File dir = new File(Environment.getExternalStorageDirectory().getPath() + "/Log");
+        // ----如要在SD卡中建立數據庫文件，先做如下的判斷和建立相對應的目錄和文件----
+        if (!dir.exists()) { // 判斷目錄是否存在
+            dir.mkdirs(); // 建立目錄
+        } else {
+        }
+        try {
+            String fileName = fn[index].getText().toString();
+            myFile[index].createNewFile();
+            FileOutputStream fOut = new FileOutputStream(myFile[index]);
+            OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut, "UTF-8");
+            String title = mDeviceAdapter.getDevice(index).getDisplayName() + "," + mDeviceAdapter.getDevice(index).getDevice().getAddress() + "\n" + "Last Updated,ADC,Min,Max,Range,Temperature,Humidity,Power";
+            myOutWriter.write(title + "\n");
+            myOutWriter.close();
+            fOut.close();
+            MediaScannerConnection.scanFile(getApplicationContext(), new String[]{Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv"}, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        startSave[index] = true;
+        mSaveTime[index] = 0;
+    }
+
+    public void stopSaveFile(int index) {
+        if (myFile[index] != null) {
+            startSave[index] = false;
+            String fileName = fn[index].getText().toString();
+            MediaScannerConnection.scanFile(getApplicationContext(), new String[]{Environment.getExternalStorageDirectory().getPath() + "/Log/" + fileName + ".csv"}, null, null);
+            myFile[index] = null;
+        }
+    }
+    public void delayMS(int delayValue) {
+        try {
+            Thread.sleep(delayValue);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
     public void startReadTimer() {
         if (readtimer == null) {
             readtimer = new Timer();
@@ -405,11 +491,7 @@ public class LogActivity extends AppCompatActivity {
             readtask = new TimerTask() {
                 public void run() {
                     mLEScanner.stopScan(mScanCallback);
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    delayMS(100);   // do nothing for 100 miliseconds (0.1 second)
                     mLEScanner.startScan(filters, settings, mScanCallback);
                 }
             };
