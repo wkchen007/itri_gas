@@ -10,6 +10,7 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -17,6 +18,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -24,6 +26,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +41,12 @@ import android.widget.Toast;
 import com.itripatch.util.BleUtil;
 import com.itripatch.util.ScannedDevice;
 
+import org.altbeacon.beacon.BeaconConsumer;
+import org.altbeacon.beacon.BeaconManager;
+import org.altbeacon.beacon.BeaconParser;
+import org.altbeacon.beacon.Region;
+import org.altbeacon.beacon.powersave.BackgroundPowerSaver;
+import org.altbeacon.beacon.service.scanner.NonBeaconLeScanCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -45,15 +54,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class DemoActivity extends AppCompatActivity {
+public class DemoActivity extends AppCompatActivity implements BeaconConsumer {
     private BluetoothAdapter mBTAdapter;
     private DeviceAdapter mDeviceAdapter;
     private static final int MY_PERMISSIONS_REQUEST = 1;
     private static final int GO_WORK = 2;
     private boolean mIsScanning;
-    private BluetoothLeScanner mLEScanner;
-    private ScanSettings settings;
-    private List<ScanFilter> filters;
+    //private BluetoothLeScanner mLEScanner;
+    //private ScanSettings settings;
+    //private List<ScanFilter> filters;
     private View alarmPopupView;
     private Boolean alarmPopupWindowShow = false;
     private PopupWindow alarmPopupWindow;
@@ -66,9 +75,18 @@ public class DemoActivity extends AppCompatActivity {
     private SharedPreferences sp;
     private SharedPreferences.Editor ed;
 
+    private static final long DEFAULT_FOREGROUND_SCAN_PERIOD = 1000L;
+    private static final long DEFAULT_FOREGROUND_BETWEEN_SCAN_PERIOD = 1000L;
+    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+    private BeaconManager beaconManager;
+    //public static final String IBEACON_FORMAT = "m:2-3=0215,i:4-19,i:20-21,i:22-23,p:24-24";
+    //private BackgroundPowerSaver backgroundPowerSaver;
+    private Region mRegion = new Region("all-region-beacon", null, null, null);
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //backgroundPowerSaver = new BackgroundPowerSaver(this);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.activity_demo);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -93,6 +111,63 @@ public class DemoActivity extends AppCompatActivity {
             invalidateOptionsMenu();
             finish();
         } else {
+            //the following method is recommended to use for getting BluetoothAdapter
+            final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+            mBTAdapter = bluetoothManager.getAdapter();
+
+
+            //獲取beaconManager實例對象
+            beaconManager = BeaconManager.getInstanceForApplication(this);
+            //設置搜索的時間間隔和週期
+            beaconManager.setForegroundBetweenScanPeriod(DEFAULT_FOREGROUND_BETWEEN_SCAN_PERIOD);
+            beaconManager.setForegroundScanPeriod(DEFAULT_FOREGROUND_SCAN_PERIOD);
+            //設置beacon數據包格式
+//            beaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(IBEACON_FORMAT));
+            beaconManager.setNonBeaconLeScanCallback(new NonBeaconLeScanCallback() {
+                @Override
+                public void onNonBeaconLeScan(BluetoothDevice bluetoothDevice, int rssi, byte[] scanRecord) {
+                    if (bluetoothDevice.getName() != null) {
+                        if (bluetoothDevice.getName().contains("itri gas sensor")) {
+                            Log.i("TTT", bluetoothDevice.getAddress() + "");
+                            BluetoothDevice newDeivce = bluetoothDevice;
+                            int newRssi = rssi;
+                            byte[] newScanRecord = scanRecord;
+                            if (!mDeviceAdapter.check(newDeivce.getAddress())) {
+                                if (mDeviceAdapter.getSize() < 5) {
+                                    mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
+                                    final String mName = newDeivce.getName();
+                                    final String mAddress = newDeivce.getAddress();
+                                    String airConfig = null;
+                                    if (sp.getString(mAddress, null) != null)
+                                        airConfig = sp.getString(mAddress, null);
+                                    else {
+                                        ed = sp.edit();
+                                        try {
+                                            airConfig = "{\"start\":1500,\"normal\":1,\"warn\":2,\"careful\":3,\"danger\":4}";
+                                            ed.putString(mAddress, new JSONObject(airConfig).toString());
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        ed.commit();
+                                    }
+                                    final String finalAirConfig = airConfig;
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            demo[mDeviceAdapter.getSize() - 1] = DemoFragment.newInstance(mName, mAddress, finalAirConfig);
+                                            mSectionsPagerAdapter.notifyDataSetChanged();
+                                        }
+                                    });
+                                }
+                            } else
+                                updateUI(newDeivce, newRssi, newScanRecord);
+                        }
+                    }
+                }
+            });
+            //將activity與庫中的BeaconService綁定到一起,服務準備完成後就會自動回調下面的onBeaconServiceConnect方法
+            beaconManager.bind(this);
+            /*
             mLEScanner = mBTAdapter.getBluetoothLeScanner();
             settings = new ScanSettings.Builder()
                     .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
@@ -103,6 +178,7 @@ public class DemoActivity extends AppCompatActivity {
             filters.add(filter);
             filters.add(filter2);
             startScan();
+            */
         }
     }
 
@@ -157,7 +233,6 @@ public class DemoActivity extends AppCompatActivity {
             menu.findItem(R.id.action_stop).setVisible(true);
         } else {
             menu.findItem(R.id.action_scan).setEnabled(true);
-            menu.findItem(R.id.action_scan).setVisible(true);
             menu.findItem(R.id.action_stop).setVisible(false);
         }
         if ((mBTAdapter == null) || (!mBTAdapter.isEnabled())) {
@@ -247,38 +322,7 @@ public class DemoActivity extends AppCompatActivity {
     private ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            BluetoothDevice newDeivce = result.getDevice();
-            int newRssi = result.getRssi();
-            byte[] newScanRecord = result.getScanRecord().getBytes();
-            if (!mDeviceAdapter.check(newDeivce.getAddress())) {
-                if (mDeviceAdapter.getSize() < 5) {
-                    mDeviceAdapter.add(newDeivce, newRssi, newScanRecord);
-                    final String mName = newDeivce.getName();
-                    final String mAddress = newDeivce.getAddress();
-                    String airConfig = null;
-                    if (sp.getString(mAddress, null) != null)
-                        airConfig = sp.getString(mAddress, null);
-                    else {
-                        ed = sp.edit();
-                        try {
-                            airConfig = "{\"start\":1500,\"normal\":1,\"warn\":2,\"careful\":3,\"danger\":4}";
-                            ed.putString(mAddress, new JSONObject(airConfig).toString());
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        ed.commit();
-                    }
-                    final String finalAirConfig = airConfig;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            demo[mDeviceAdapter.getSize() - 1] = DemoFragment.newInstance(mName, mAddress, finalAirConfig);
-                            mSectionsPagerAdapter.notifyDataSetChanged();
-                        }
-                    });
-                }
-            } else
-                updateUI(newDeivce, newRssi, newScanRecord);
+
         }
     };
 
@@ -345,7 +389,13 @@ public class DemoActivity extends AppCompatActivity {
 
     private void startScan() {
         if ((mBTAdapter != null) && (!mIsScanning)) {
-            mLEScanner.startScan(filters, settings, mScanCallback);
+            //mLEScanner.startScan(filters, settings, mScanCallback);
+            try {
+//            別忘了啓動搜索,不然不會調用didRangeBeaconsInRegion方法
+                beaconManager.startRangingBeaconsInRegion(mRegion);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
             mIsScanning = true;
             setProgressBarIndeterminateVisibility(true);
             invalidateOptionsMenu();
@@ -354,7 +404,12 @@ public class DemoActivity extends AppCompatActivity {
 
     private void stopScan() {
         if (mBTAdapter != null) {
-            mLEScanner.stopScan(mScanCallback);
+            //mLEScanner.stopScan(mScanCallback);
+            try {
+                beaconManager.stopRangingBeaconsInRegion(mRegion);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
         mIsScanning = false;
         setProgressBarIndeterminateVisibility(false);
@@ -408,6 +463,11 @@ public class DemoActivity extends AppCompatActivity {
             mp.setLooping(false); //停止音樂播放
             alarmPopupWindowShow = false;
         }
+    }
+
+    @Override
+    public void onBeaconServiceConnect() {
+
     }
 
     private class SectionsPagerAdapter extends FragmentPagerAdapter {
